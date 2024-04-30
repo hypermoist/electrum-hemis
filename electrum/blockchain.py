@@ -38,10 +38,12 @@ if TYPE_CHECKING:
 _logger = get_logger(__name__)
 
 HEADER_SIZE = 80  # bytes
+V7_HEADER_SIZE = 112
+V8_HEADER_SIZE = 144
 
-# see https://github.com/bitcoin/bitcoin/blob/feedb9c84e72e4fff489810a2bbeec09bcda5763/src/chainparams.cpp#L76
-MAX_TARGET = 0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff  # compact: 0x1d00ffff
-
+MAX_TARGET = 0x00000FFFFF000000000000000000000000000000000000000000000000000000
+POW_TARGET_SPACING = int(1 * 60)  # PIVX: 1 minute
+DGW_PAST_BLOCKS = 24
 
 class MissingHeader(Exception):
     pass
@@ -56,13 +58,21 @@ def serialize_header(header_dict: dict) -> str:
         + int_to_hex(int(header_dict['timestamp']), 4) \
         + int_to_hex(int(header_dict['bits']), 4) \
         + int_to_hex(int(header_dict['nonce']), 4)
+
+    if header_dict['version'] > 3 and header_dict['version'] < 7:
+        s += rev_hex(header_dict['accumulator_checkpoint'])
+
+    if header_dict['version'] > 8:
+        s += rev_hex(header_dict['hashFinalSaplingRoot'])
     return s
+
 
 def deserialize_header(s: bytes, height: int) -> dict:
     if not s:
         raise InvalidHeader('Invalid header: {}'.format(s))
-    if len(s) != HEADER_SIZE:
+    if len(s) < HEADER_SIZE:
         raise InvalidHeader('Invalid header length: {}'.format(len(s)))
+
     hex_to_int = lambda s: int.from_bytes(s, byteorder='little')
     h = {}
     h['version'] = hex_to_int(s[0:4])
@@ -71,6 +81,16 @@ def deserialize_header(s: bytes, height: int) -> dict:
     h['timestamp'] = hex_to_int(s[68:72])
     h['bits'] = hex_to_int(s[72:76])
     h['nonce'] = hex_to_int(s[76:80])
+
+    if h['version'] > 3 and h['version'] < 7:
+        if len(s) < V7_HEADER_SIZE:
+            raise InvalidHeader('Invalid header length: {}'.format(len(s)))
+        h['accumulator_checkpoint'] = hash_encode(s[80:112])
+
+    if h['version'] > 8:
+        if len(s) < V8_HEADER_SIZE:
+            h['hashFinalSaplingRoot'] = hash_encode(s[113:193])
+
     h['block_height'] = height
     return h
 
