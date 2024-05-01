@@ -23,6 +23,7 @@
 import os
 import threading
 import time
+import algomodule
 from typing import Optional, Dict, Mapping, Sequence, TYPE_CHECKING
 
 from . import util
@@ -101,11 +102,17 @@ def hash_header(header: dict) -> str:
         header['prev_block_hash'] = '00'*32
     return hash_raw_header(serialize_header(header))
 
-
 def hash_raw_header(header: str) -> str:
-    return hash_encode(sha256d(bfh(header)))
+    header = bfh(header)
+    if header[0] > 3:
+        return hash_encode(sha256d(header))
+    return hash_encode(PoWHash(header))
 
 
+def PoWHash(x):
+    x = util.to_bytes(x, 'utf8')
+    out = bytes(algomodule._quark_hash(x))
+    return out
 pow_hash_header = hash_header
 
 
