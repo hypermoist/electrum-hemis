@@ -6,21 +6,21 @@ from typing import Sequence
 import asyncio
 import copy
 
-from electrum import storage, bitcoin, keystore, bip32, slip39, wallet
-from electrum import Transaction
-from electrum import SimpleConfig
-from electrum import util
-from electrum.address_synchronizer import TX_HEIGHT_UNCONFIRMED, TX_HEIGHT_UNCONF_PARENT
-from electrum.wallet import (sweep, Multisig_Wallet, Standard_Wallet, Imported_Wallet,
+from electrum_hemis import storage, bitcoin, keystore, bip32, slip39, wallet
+from electrum_hemis import Transaction
+from electrum_hemis import SimpleConfig
+from electrum_hemis import util
+from electrum_hemis.address_synchronizer import TX_HEIGHT_UNCONFIRMED, TX_HEIGHT_UNCONF_PARENT
+from electrum_hemis.wallet import (sweep, Multisig_Wallet, Standard_Wallet, Imported_Wallet,
                              restore_wallet_from_text, Abstract_Wallet, CannotBumpFee, BumpFeeStrategy,
                              TransactionPotentiallyDangerousException, TransactionDangerousException,
                              TxSighashRiskLevel)
-from electrum.util import bfh, NotEnoughFunds, UnrelatedTransactionException, UserFacingException
-from electrum.transaction import Transaction, PartialTxOutput, tx_from_any, Sighash
-from electrum.mnemonic import seed_type
-from electrum.network import Network
+from electrum_hemis.util import bfh, NotEnoughFunds, UnrelatedTransactionException, UserFacingException
+from electrum_hemis.transaction import Transaction, PartialTxOutput, tx_from_any, Sighash
+from electrum_hemis.mnemonic import seed_type
+from electrum_hemis.network import Network
 
-from electrum.plugins.trustedcoin import trustedcoin
+from electrum_hemis.plugins.trustedcoin import trustedcoin
 
 from . import ElectrumTestCase
 

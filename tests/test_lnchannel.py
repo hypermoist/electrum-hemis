@@ -28,16 +28,16 @@ import binascii
 from pprint import pformat
 import logging
 
-from electrum import bitcoin
-from electrum import lnpeer
-from electrum import lnchannel
-from electrum import lnutil
-from electrum import bip32 as bip32_utils
-from electrum.lnutil import SENT, LOCAL, REMOTE, RECEIVED, UpdateAddHtlc
-from electrum.logging import console_stderr_handler
-from electrum.lnchannel import ChannelState
-from electrum.json_db import StoredDict
-from electrum.coinchooser import PRNG
+from electrum_hemis import bitcoin
+from electrum_hemis import lnpeer
+from electrum_hemis import lnchannel
+from electrum_hemis import lnutil
+from electrum_hemis import bip32 as bip32_utils
+from electrum_hemis.lnutil import SENT, LOCAL, REMOTE, RECEIVED, UpdateAddHtlc
+from electrum_hemis.logging import console_stderr_handler
+from electrum_hemis.lnchannel import ChannelState
+from electrum_hemis.json_db import StoredDict
+from electrum_hemis.coinchooser import PRNG
 
 from . import ElectrumTestCase
 
@@ -313,7 +313,7 @@ class TestChannel(ElectrumTestCase):
         self.assertEqual(bob_channel.included_htlcs(REMOTE, RECEIVED, 0), [])
         self.assertEqual(bob_channel.included_htlcs(REMOTE, RECEIVED, 1), [])
 
-        from electrum.lnutil import extract_ctn_from_tx_and_chan
+        from electrum_hemis.lnutil import extract_ctn_from_tx_and_chan
         tx0 = str(alice_channel.force_close_tx())
         self.assertEqual(alice_channel.get_oldest_unrevoked_ctn(LOCAL), 0)
         self.assertEqual(extract_ctn_from_tx_and_chan(alice_channel.force_close_tx(), alice_channel), 0)

@@ -5,11 +5,11 @@ import threading
 import tempfile
 import shutil
 
-import electrum
-import electrum.logging
-from electrum import constants
-from electrum import util
-from electrum.logging import Logger
+import electrum_hemis
+import electrum_hemis.logging
+from electrum_hemis import constants
+from electrum_hemis import util
+from electrum_hemis.logging import Logger
 
 
 # Set this locally to make the test suite run faster.
@@ -19,9 +19,9 @@ from electrum.logging import Logger
 FAST_TESTS = False
 
 
-electrum.logging._configure_stderr_logging()
+electrum_hemis.logging._configure_stderr_logging()
 
-electrum.util.AS_LIB_USER_I_WANT_TO_MANAGE_MY_OWN_ASYNCIO_LOOP = True
+electrum_hemis.util.AS_LIB_USER_I_WANT_TO_MANAGE_MY_OWN_ASYNCIO_LOOP = True
 
 
 class ElectrumTestCase(unittest.IsolatedAsyncioTestCase, Logger):

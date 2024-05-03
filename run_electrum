@@ -91,26 +91,26 @@ if not is_android:
 
 sys._ELECTRUM_RUNNING_VIA_RUNELECTRUM = True  # used by logging.py
 
-from electrum.logging import get_logger, configure_logging  # import logging submodule first
-from electrum import util
-from electrum.payment_identifier import PaymentIdentifier
-from electrum import constants
-from electrum import SimpleConfig
-from electrum.wallet_db import WalletDB
-from electrum.wallet import Wallet
-from electrum.storage import WalletStorage
-from electrum.util import print_msg, print_stderr, json_encode, json_decode, UserCancelled
-from electrum.util import InvalidPassword
-from electrum.commands import get_parser, known_commands, Commands, config_variables
-from electrum import daemon
-from electrum import keystore
-from electrum.util import create_and_start_event_loop, UserFacingException, JsonRPCError
-from electrum.i18n import set_language
+from electrum_hemis.logging import get_logger, configure_logging  # import logging submodule first
+from electrum_hemis import util
+from electrum_hemis.payment_identifier import PaymentIdentifier
+from electrum_hemis import constants
+from electrum_hemis import SimpleConfig
+from electrum_hemis.wallet_db import WalletDB
+from electrum_hemis.wallet import Wallet
+from electrum_hemis.storage import WalletStorage
+from electrum_hemis.util import print_msg, print_stderr, json_encode, json_decode, UserCancelled
+from electrum_hemis.util import InvalidPassword
+from electrum_hemis.commands import get_parser, known_commands, Commands, config_variables
+from electrum_hemis import daemon
+from electrum_hemis import keystore
+from electrum_hemis.util import create_and_start_event_loop, UserFacingException, JsonRPCError
+from electrum_hemis.i18n import set_language
 
 if TYPE_CHECKING:
     import threading
 
-    from electrum.plugin import Plugins
+    from electrum_hemis.plugin import Plugins
 
 _logger = get_logger(__name__)
 
@@ -260,7 +260,7 @@ async def run_offline_command(config, config_options, plugins: 'Plugins'):
 
 
 def init_plugins(config, gui_name):
-    from electrum.plugin import Plugins
+    from electrum_hemis.plugin import Plugins
     return Plugins(config, gui_name)
 
 
@@ -374,7 +374,7 @@ def main():
         lang = config.LOCALIZATION_LANGUAGE
         if not lang:
             try:
-                from electrum.gui.default_lang import get_default_language
+                from electrum_hemis.gui.default_lang import get_default_language
                 lang = get_default_language(gui_name=gui_name)
                 _logger.info(f"get_default_language: detected default as {lang=!r}")
             except ImportError as e:

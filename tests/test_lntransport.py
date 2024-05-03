@@ -1,10 +1,10 @@
 import asyncio
 
-from electrum import util
-from electrum.ecc import ECPrivkey
-from electrum.lnutil import LNPeerAddr
-from electrum.lntransport import LNResponderTransport, LNTransport
-from electrum.util import OldTaskGroup
+from electrum_hemis import util
+from electrum_hemis.ecc import ECPrivkey
+from electrum_hemis.lnutil import LNPeerAddr
+from electrum_hemis.lntransport import LNResponderTransport, LNTransport
+from electrum_hemis.util import OldTaskGroup
 
 from . import ElectrumTestCase
 from .test_bitcoin import needs_test_with_all_chacha20_implementations

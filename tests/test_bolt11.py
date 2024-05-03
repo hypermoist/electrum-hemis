@@ -4,11 +4,11 @@ from binascii import unhexlify, hexlify
 import pprint
 import unittest
 
-from electrum.lnaddr import shorten_amount, unshorten_amount, LnAddr, lnencode, lndecode
-from electrum.segwit_addr import bech32_encode, bech32_decode
-from electrum import segwit_addr
-from electrum.lnutil import UnknownEvenFeatureBits, derive_payment_secret_from_payment_preimage, LnFeatures, IncompatibleLightningFeatures
-from electrum import constants
+from electrum_hemis.lnaddr import shorten_amount, unshorten_amount, LnAddr, lnencode, lndecode
+from electrum_hemis.segwit_addr import bech32_encode, bech32_decode
+from electrum_hemis import segwit_addr
+from electrum_hemis.lnutil import UnknownEvenFeatureBits, derive_payment_secret_from_payment_preimage, LnFeatures, IncompatibleLightningFeatures
+from electrum_hemis import constants
 
 from . import ElectrumTestCase
 

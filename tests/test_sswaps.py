@@ -1,7 +1,7 @@
-from electrum import SimpleConfig
-from electrum.util import bfh
-from electrum.transaction import PartialTxInput, TxOutpoint
-from electrum.submarine_swaps import SwapManager, SwapData
+from electrum_hemis import SimpleConfig
+from electrum_hemis.util import bfh
+from electrum_hemis.transaction import PartialTxInput, TxOutpoint
+from electrum_hemis.submarine_swaps import SwapManager, SwapData
 
 from . import ElectrumTestCase
 

@@ -8,20 +8,20 @@ import time
 from io import StringIO
 import asyncio
 
-from electrum.storage import WalletStorage
-from electrum.wallet_db import FINAL_SEED_VERSION
-from electrum.wallet import (Abstract_Wallet, Standard_Wallet, create_new_wallet,
+from electrum_hemis.storage import WalletStorage
+from electrum_hemis.wallet_db import FINAL_SEED_VERSION
+from electrum_hemis.wallet import (Abstract_Wallet, Standard_Wallet, create_new_wallet,
                              restore_wallet_from_text, Imported_Wallet, Wallet)
-from electrum.exchange_rate import ExchangeBase, FxThread
-from electrum.util import TxMinedInfo, InvalidPassword
-from electrum.bitcoin import COIN
-from electrum.wallet_db import WalletDB, JsonDB
-from electrum.simple_config import SimpleConfig
-from electrum import util
-from electrum.daemon import Daemon
-from electrum.invoices import PR_UNPAID, PR_PAID, PR_UNCONFIRMED
-from electrum.transaction import tx_from_any
-from electrum.address_synchronizer import TX_HEIGHT_UNCONFIRMED
+from electrum_hemis.exchange_rate import ExchangeBase, FxThread
+from electrum_hemis.util import TxMinedInfo, InvalidPassword
+from electrum_hemis.bitcoin import COIN
+from electrum_hemis.wallet_db import WalletDB, JsonDB
+from electrum_hemis.simple_config import SimpleConfig
+from electrum_hemis import util
+from electrum_hemis.daemon import Daemon
+from electrum_hemis.invoices import PR_UNPAID, PR_PAID, PR_UNCONFIRMED
+from electrum_hemis.transaction import tx_from_any
+from electrum_hemis.address_synchronizer import TX_HEIGHT_UNCONFIRMED
 
 from . import ElectrumTestCase
 
