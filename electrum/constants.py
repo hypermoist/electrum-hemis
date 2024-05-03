@@ -81,19 +81,19 @@ class BitcoinMainnet(AbstractNet):
 
     NET_NAME = "mainnet"
     TESTNET = False
-    WIF_PREFIX = 0x80
-    ADDRTYPE_P2PKH = 28
-    ADDRTYPE_P2SH = 5
-    SEGWIT_HRP = "bc"
+    WIF_PREFIX = 0xd4
+    ADDRTYPE_P2PKH = 40
+    ADDRTYPE_P2SH = 13
+    SEGWIT_HRP = "hms"
     BOLT11_HRP = SEGWIT_HRP
     GENESIS = "000000956c582b70df5d2c9b4b83d05b5331978e40d639739bdc96c29e156ce7"
     DEFAULT_PORTS = {'t': '50001', 's': '50002'}
     DEFAULT_SERVERS = read_json('servers.json', {})
     CHECKPOINTS = read_json('checkpoints.json', [])
-    BLOCK_HEIGHT_FIRST_LIGHTNING_CHANNELS = 497000
+    BLOCK_HEIGHT_FIRST_LIGHTNING_CHANNELS = 0
 
     XPRV_HEADERS = {
-        'standard':    0x0488ade4,  # xprv
+        'standard':    0xa0f3f1fb,  # xprv
         'p2wpkh-p2sh': 0x049d7878,  # yprv
         'p2wsh-p2sh':  0x0295b005,  # Yprv
         'p2wpkh':      0x04b2430c,  # zprv
@@ -101,20 +101,16 @@ class BitcoinMainnet(AbstractNet):
     }
     XPRV_HEADERS_INV = inv_dict(XPRV_HEADERS)
     XPUB_HEADERS = {
-        'standard':    0x0488b21e,  # xpub
+        'standard':    0xa0f2f5f3,  # xpub
         'p2wpkh-p2sh': 0x049d7cb2,  # ypub
         'p2wsh-p2sh':  0x0295b43f,  # Ypub
         'p2wpkh':      0x04b24746,  # zpub
         'p2wsh':       0x02aa7ed3,  # Zpub
     }
     XPUB_HEADERS_INV = inv_dict(XPUB_HEADERS)
-    BIP44_COIN_TYPE = 0
+    BIP44_COIN_TYPE = 684
     LN_REALM_BYTE = 0
-    LN_DNS_SEEDS = [
-        'nodes.lightning.directory.',
-        'lseed.bitcoinstats.com.',
-        'lseed.darosior.ninja',
-    ]
+    LN_DNS_SEEDS = []
 
 class BitcoinTestnet(AbstractNet):
 

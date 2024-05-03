@@ -23,6 +23,7 @@
 import binascii
 import concurrent.futures
 import os, sys, re, json
+from struct import Struct
 from collections import defaultdict, OrderedDict
 from typing import (NamedTuple, Union, TYPE_CHECKING, Tuple, Optional, Callable, Any,
                     Sequence, Dict, Generic, TypeVar, List, Iterable, Set, Awaitable)
@@ -625,7 +626,11 @@ def to_bytes(something, encoding='utf8') -> bytes:
 
 
 bfh = bytes.fromhex
-
+unpack_int32_from = Struct('<i').unpack_from
+unpack_int64_from = Struct('<q').unpack_from
+unpack_uint16_from = Struct('<H').unpack_from
+unpack_uint32_from = Struct('<I').unpack_from
+unpack_uint64_from = Struct('<Q').unpack_from
 
 def xor_bytes(a: bytes, b: bytes) -> bytes:
     size = min(len(a), len(b))

@@ -1106,7 +1106,7 @@ This will result in longer routes; it might increase your fees and decrease the 
         'show_tx_locktime', default=False, type_=bool,
         short_desc=lambda: _('Edit Locktime'),
     )
-    GUI_QT_SHOW_TAB_ADDRESSES = ConfigVar('show_addresses_tab', default=False, type_=bool)
+    GUI_QT_SHOW_TAB_ADDRESSES = ConfigVar('show_addresses_tab', default=True, type_=bool)
     GUI_QT_SHOW_TAB_CHANNELS = ConfigVar('show_channels_tab', default=False, type_=bool)
     GUI_QT_SHOW_TAB_UTXO = ConfigVar('show_utxo_tab', default=False, type_=bool)
     GUI_QT_SHOW_TAB_CONTACTS = ConfigVar('show_contacts_tab', default=False, type_=bool)
@@ -1181,7 +1181,7 @@ This will result in longer routes; it might increase your fees and decrease the 
     WALLET_BACKUP_DIRECTORY = ConfigVar('backup_dir', default=None, type_=str)
     CONFIG_PIN_CODE = ConfigVar('pin_code', default=None, type_=str)
     QR_READER_FLIP_X = ConfigVar('qrreader_flip_x', default=True, type_=bool)
-    WIZARD_DONT_CREATE_SEGWIT = ConfigVar('nosegwit', default=False, type_=bool)
+    WIZARD_DONT_CREATE_SEGWIT = ConfigVar('nosegwit', default=True, type_=bool)
     CONFIG_FORGET_CHANGES = ConfigVar('forget_config', default=False, type_=bool)
 
     # connect to remote submarine swap server

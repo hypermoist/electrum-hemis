@@ -52,7 +52,7 @@ from . import x509
 from . import pem
 from . import version
 from . import blockchain
-from .blockchain import Blockchain, HEADER_SIZE
+from .blockchain import Blockchain
 from . import bitcoin
 from . import constants
 from .i18n import _
@@ -646,19 +646,16 @@ class Interface(Logger):
         finally:
             self._requested_chunks.discard(index)
         assert_dict_contains_field(res, field_name='count')
-        assert_dict_contains_field(res, field_name='hex')
+        assert_dict_contains_field(res, field_name='headers')
         assert_dict_contains_field(res, field_name='max')
         assert_non_negative_integer(res['count'])
         assert_non_negative_integer(res['max'])
-        assert_hex_str(res['hex'])
-        if len(res['hex']) != HEADER_SIZE * 2 * res['count']:
-            raise RequestCorrupted('inconsistent chunk hex and count')
         # we never request more than 2016 headers, but we enforce those fit in a single response
         if res['max'] < 2016:
             raise RequestCorrupted(f"server uses too low 'max' count for block.headers: {res['max']} < 2016")
         if res['count'] != size:
             raise RequestCorrupted(f"expected {size} headers but only got {res['count']}")
-        conn = self.blockchain.connect_chunk(index, res['hex'])
+        conn = self.blockchain.connect_chunk(index, res['headers'])
         if not conn:
             return conn, 0
         return conn, res['count']

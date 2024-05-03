@@ -21,16 +21,18 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import os
+import sqlite3
 import threading
 import time
+import traceback
 import algomodule
-from typing import Optional, Dict, Mapping, Sequence, TYPE_CHECKING
+from typing import Optional, Dict, Mapping, Sequence, TYPE_CHECKING, Union
 
 from . import util
 from .bitcoin import hash_encode, int_to_hex, rev_hex
 from .crypto import sha256d
 from . import constants
-from .util import bfh, with_lock
+from .util import bfh
 from .logging import get_logger, Logger
 
 if TYPE_CHECKING:
@@ -60,11 +62,8 @@ def serialize_header(header_dict: dict) -> str:
         + int_to_hex(int(header_dict['bits']), 4) \
         + int_to_hex(int(header_dict['nonce']), 4)
 
-    if header_dict['version'] > 3 and header_dict['version'] < 7:
-        s += rev_hex(header_dict['accumulator_checkpoint'])
-
-    if header_dict['version'] > 8:
-        s += rev_hex(header_dict['hashFinalSaplingRoot'])
+    if header_dict['version'] > 3:
+        s += rev_hex(header_dict['accumulator_checkpoint'])        
     return s
 
 
@@ -83,14 +82,8 @@ def deserialize_header(s: bytes, height: int) -> dict:
     h['bits'] = hex_to_int(s[72:76])
     h['nonce'] = hex_to_int(s[76:80])
 
-    if h['version'] > 3 and h['version'] < 7:
-        if len(s) < V7_HEADER_SIZE:
-            raise InvalidHeader('Invalid header length: {}'.format(len(s)))
+    if h['version'] > 3:
         h['accumulator_checkpoint'] = hash_encode(s[80:112])
-
-    if h['version'] > 8:
-        if len(s) < V8_HEADER_SIZE:
-            h['hashFinalSaplingRoot'] = hash_encode(s[113:193])
 
     h['block_height'] = height
     return h
@@ -129,23 +122,21 @@ def read_blockchains(config: 'SimpleConfig'):
                             forkpoint_hash=constants.net.GENESIS,
                             prev_hash=None)
     blockchains[constants.net.GENESIS] = best_chain
-    # consistency checks
-    if best_chain.height() > constants.net.max_checkpoint():
-        header_after_cp = best_chain.read_header(constants.net.max_checkpoint()+1)
-        if not header_after_cp or not best_chain.can_connect(header_after_cp, check_height=False):
-            _logger.info("[blockchain] deleting best chain. cannot connect header after last cp to last cp.")
-            os.unlink(best_chain.path())
-            best_chain.update_size()
+
     # forks
     fdir = os.path.join(util.get_headers_dir(config), 'forks')
     util.make_dir(fdir)
     # files are named as: fork2_{forkpoint}_{prev_hash}_{first_hash}
-    l = filter(lambda x: x.startswith('fork2_') and '.' not in x, os.listdir(fdir))
+    l = filter(lambda x: x.startswith('fork2_') and '.' not in x and len(x.split('_')) == 4, os.listdir(fdir))
     l = sorted(l, key=lambda x: int(x.split('_')[1]))  # sort by forkpoint
 
     def delete_chain(filename, reason):
         _logger.info(f"[blockchain] deleting chain {filename}: {reason}")
-        os.unlink(os.path.join(fdir, filename))
+        path = os.path.join(fdir, filename)
+        try:
+            os.unlink(path)
+        except BaseException as e:
+            _logger.error(f"failed delete {path} {e}")
 
     def instantiate_chain(filename):
         __, forkpoint, prev_hash, first_hash = filename.split('_')
@@ -170,11 +161,10 @@ def read_blockchains(config: 'SimpleConfig'):
                        prev_hash=prev_hash)
         # consistency checks
         h = b.read_header(b.forkpoint)
-        if first_hash != hash_header(h):
-            delete_chain(filename, "incorrect first hash for chain")
-            return
-        if not b.parent.can_connect(h, check_height=False):
-            delete_chain(filename, "cannot connect chain to parent")
+        if first_hash != hash_header(h) or not b.parent.can_connect(h, check_height=False):
+            if b.conn:
+                b.conn.close()
+            delete_chain(filename, "invalid fork")
             return
         chain_id = b.get_id()
         assert first_hash == chain_id, (first_hash, chain_id)
@@ -183,7 +173,6 @@ def read_blockchains(config: 'SimpleConfig'):
     for filename in l:
         instantiate_chain(filename)
 
-
 def get_best_chain() -> 'Blockchain':
     return blockchains[constants.net.GENESIS]
 
@@ -191,21 +180,6 @@ def get_best_chain() -> 'Blockchain':
 _CHAINWORK_CACHE = {
     "0000000000000000000000000000000000000000000000000000000000000000": 0,  # virtual block at height -1
 }  # type: Dict[str, int]
-
-
-def init_headers_file_for_best_chain():
-    b = get_best_chain()
-    filename = b.path()
-    length = HEADER_SIZE * len(constants.net.CHECKPOINTS) * 2016
-    if not os.path.exists(filename) or os.path.getsize(filename) < length:
-        with open(filename, 'wb') as f:
-            if length > 0:
-                f.seek(length - 1)
-                f.write(b'\x00')
-        util.ensure_sparse_file(filename)
-    with b.lock:
-        b.update_size()
-
 
 class Blockchain(Logger):
     """
@@ -226,8 +200,50 @@ class Blockchain(Logger):
         self._forkpoint_hash = forkpoint_hash  # blockhash at forkpoint. "first hash"
         self._prev_hash = prev_hash  # blockhash immediately before forkpoint
         self.lock = threading.RLock()
+        self.swaping = threading.Event()
+        self.conn = None
+        self.init_db()
         self.update_size()
 
+    def with_lock(func):
+        def func_wrapper(self, *args, **kwargs):
+            with self.lock:
+                return func(self, *args, **kwargs)
+        return func_wrapper
+
+    def init_db(self):
+        self.conn = sqlite3.connect(self.path(), check_same_thread=False)
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('CREATE TABLE IF NOT EXISTS header '
+                           '(height INT PRIMARY KEY NOT NULL, data BLOB NOT NULL)')
+            self.conn.commit()
+        except (sqlite3.DatabaseError, ) as e:
+            self.logger.info(f"error when init_db', {e}, 'will delete the db file and recreate")
+            os.remove(self.path())
+            self.conn = None
+            self.init_db()
+        finally:
+            cursor.close()
+
+    @with_lock
+    def is_valid(self):
+        conn = sqlite3.connect(self.path(), check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute('SELECT min(height), max(height) FROM header')
+        min_height, max_height = cursor.fetchone()
+        max_height = max_height or 0
+        min_height = min_height or 0
+        cursor.execute('SELECT COUNT(*) FROM header')
+        size = int(cursor.fetchone()[0])
+        cursor.close()
+        conn.close()
+        if not min_height == self.forkpoint:
+            return False
+        if size > 0 and not size == max_height - min_height + 1:
+            return False
+        return True
+    
     @property
     def checkpoints(self):
         return constants.net.CHECKPOINTS
@@ -300,8 +316,9 @@ class Blockchain(Logger):
                           parent=parent,
                           forkpoint_hash=hash_header(header),
                           prev_hash=parent.get_hash(forkpoint-1))
+        self.logger.info(f'[fork] {forkpoint}, {parent.forkpoint}')
         self.assert_headers_file_available(parent.path())
-        open(self.path(), 'w+').close()
+        # open(self.path(), 'w+').close()
         self.save_header(header)
         # put into global dict. note that in some cases
         # save_header might have already put it there but that's OK
@@ -320,8 +337,12 @@ class Blockchain(Logger):
 
     @with_lock
     def update_size(self) -> None:
-        p = self.path()
-        self._size = os.path.getsize(p)//HEADER_SIZE if os.path.exists(p) else 0
+        conn = sqlite3.connect(self.path(), check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM header')
+        count = int(cursor.fetchone()[0])
+        self._size = count
+        cursor.close()
 
     @classmethod
     def verify_header(cls, header: dict, prev_hash: str, target: int, expected_header_hash: str=None) -> None:
@@ -332,6 +353,7 @@ class Blockchain(Logger):
             raise InvalidHeader("prev hash mismatch: %s vs %s" % (prev_hash, header.get('prev_block_hash')))
         if constants.net.TESTNET:
             return
+        return
         bits = cls.target_to_bits(target)
         if bits != header.get('bits'):
             raise InvalidHeader("bits mismatch: %s vs %s" % (bits, header.get('bits')))
@@ -340,8 +362,8 @@ class Blockchain(Logger):
         if pow_hash_as_num > target:
             raise InvalidHeader(f"insufficient proof of work: {pow_hash_as_num} vs target {target}")
 
-    def verify_chunk(self, index: int, data: bytes) -> None:
-        num = len(data) // HEADER_SIZE
+    def verify_chunk(self, index: int, data: list) -> None:
+        num = len(data)
         start_height = index * 2016
         prev_hash = self.get_hash(start_height - 1)
         target = self.get_target(index-1)
@@ -351,7 +373,7 @@ class Blockchain(Logger):
                 expected_header_hash = self.get_hash(height)
             except MissingHeader:
                 expected_header_hash = None
-            raw_header = data[i*HEADER_SIZE : (i+1)*HEADER_SIZE]
+            raw_header = bfh(data[i])
             header = deserialize_header(raw_header, index*2016 + i)
             self.verify_header(header, prev_hash, target, expected_header_hash)
             prev_hash = hash_header(header)
@@ -370,88 +392,75 @@ class Blockchain(Logger):
         return os.path.join(d, filename)
 
     @with_lock
-    def save_chunk(self, index: int, chunk: bytes):
+    def save_chunk(self, index: int, raw_headers: list):
+        self.logger.info(f'{self.forkpoint} try to save chunk {(index * 2016)}')
         assert index >= 0, index
-        chunk_within_checkpoint_region = index < len(self.checkpoints)
-        # chunks in checkpoint region are the responsibility of the 'main chain'
-        if chunk_within_checkpoint_region and self.parent is not None:
-            main_chain = get_best_chain()
-            main_chain.save_chunk(index, chunk)
-            return
 
-        delta_height = (index * 2016 - self.forkpoint)
-        delta_bytes = delta_height * HEADER_SIZE
-        # if this chunk contains our forkpoint, only save the part after forkpoint
-        # (the part before is the responsibility of the parent)
-        if delta_bytes < 0:
-            chunk = chunk[-delta_bytes:]
-            delta_bytes = 0
-        truncate = not chunk_within_checkpoint_region
-        self.write(chunk, delta_bytes, truncate)
+        if self.swaping.is_set():
+            return
+        try:
+            conn = self.conn
+            cursor = self.conn.cursor()
+        except (sqlite3.ProgrammingError, AttributeError):
+            conn = sqlite3.connect(self.path(), check_same_thread=False)
+            cursor = conn.cursor()
+
+        forkpoint = self.forkpoint
+        if forkpoint is None:
+            forkpoint = 0
+        headers = [(index * 2016 + i, v)
+                   for i, v in enumerate(raw_headers)
+                   if index * 2016 + i >= forkpoint]
+
+        cursor.executemany('REPLACE INTO header (height, data) VALUES(?,?)', headers)
+        cursor.close()
+        conn.commit()
+        self.update_size()
         self.swap_with_parent()
 
     def swap_with_parent(self) -> None:
-        with self.lock, blockchains_lock:
-            # do the swap; possibly multiple ones
-            cnt = 0
-            while True:
-                old_parent = self.parent
-                if not self._swap_with_parent():
-                    break
-                # make sure we are making progress
-                cnt += 1
-                if cnt > len(blockchains):
-                    raise Exception(f'swapping fork with parent too many times: {cnt}')
-                # we might have become the parent of some of our former siblings
-                for old_sibling in old_parent.get_direct_children():
-                    if self.check_hash(old_sibling.forkpoint - 1, old_sibling._prev_hash):
-                        old_sibling.parent = self
-
-    def _swap_with_parent(self) -> bool:
-        """Check if this chain became stronger than its parent, and swap
-        the underlying files if so. The Blockchain instances will keep
-        'containing' the same headers, but their ids change and so
-        they will be stored in different files."""
         if self.parent is None:
-            return False
-        if self.parent.get_chainwork() >= self.get_chainwork():
-            return False
-        self.logger.info(f"swapping {self.forkpoint} {self.parent.forkpoint}")
-        parent_branch_size = self.parent.height() - self.forkpoint + 1
-        forkpoint = self.forkpoint  # type: Optional[int]
-        parent = self.parent  # type: Optional[Blockchain]
-        child_old_id = self.get_id()
-        parent_old_id = parent.get_id()
-        # swap files
-        # child takes parent's name
-        # parent's new name will be something new (not child's old name)
-        self.assert_headers_file_available(self.path())
-        child_old_name = self.path()
-        with open(self.path(), 'rb') as f:
-            my_data = f.read()
-        self.assert_headers_file_available(parent.path())
-        assert forkpoint > parent.forkpoint, (f"forkpoint of parent chain ({parent.forkpoint}) "
-                                              f"should be at lower height than children's ({forkpoint})")
-        with open(parent.path(), 'rb') as f:
-            f.seek((forkpoint - parent.forkpoint)*HEADER_SIZE)
-            parent_data = f.read(parent_branch_size*HEADER_SIZE)
-        self.write(parent_data, 0)
-        parent.write(my_data, (forkpoint - parent.forkpoint)*HEADER_SIZE)
-        # swap parameters
-        self.parent, parent.parent = parent.parent, self  # type: Optional[Blockchain], Optional[Blockchain]
-        self.forkpoint, parent.forkpoint = parent.forkpoint, self.forkpoint
-        self._forkpoint_hash, parent._forkpoint_hash = parent._forkpoint_hash, hash_raw_header(parent_data[:HEADER_SIZE].hex())
-        self._prev_hash, parent._prev_hash = parent._prev_hash, self._prev_hash
-        # parent's new name
-        os.replace(child_old_name, parent.path())
-        self.update_size()
-        parent.update_size()
-        # update pointers
-        blockchains.pop(child_old_id, None)
-        blockchains.pop(parent_old_id, None)
-        blockchains[self.get_id()] = self
-        blockchains[parent.get_id()] = parent
-        return True
+            return
+        with self.lock, blockchains_lock:
+            parent = self.parent
+
+            self.update_size()
+            parent.update_size()
+            parent_branch_size = parent.height() - self.forkpoint + 1
+            if parent_branch_size >= self._size:
+                return
+
+            if self.swaping.is_set() or parent.swaping.is_set():
+                return
+            self.swaping.set()
+            parent.swaping.set()
+
+            parent_id = parent.get_id()
+            forkpoint = self.forkpoint
+
+            global blockchains
+            try:
+                self.logger.info(f'swap, {forkpoint}, {parent_id}')
+                for i in range(forkpoint, forkpoint + self._size):
+                    # print_error('swaping', i)
+                    header = self.read_header(i, deserialize=False)
+                    parent_header = parent.read_header(i, deserialize=False)
+                    parent.write(header, i)
+                    if parent_header:
+                        self.write(parent_header, i)
+                    else:
+                        self.delete(i)
+            except (BaseException,) as e:
+                import traceback, sys
+                traceback.print_exc(file=sys.stderr)
+                self.logger.error(f'swap error, {e}')
+            # update size
+            self.update_size()
+            parent.update_size()
+            self.swaping.clear()
+            parent.swaping.clear()
+            self.logger.info('swap finished')
+            parent.swap_with_parent()
 
     def get_id(self) -> str:
         return self._forkpoint_hash
@@ -464,49 +473,98 @@ class Blockchain(Logger):
         else:
             raise FileNotFoundError('Cannot find headers file but headers_dir is there. Should be at {}'.format(path))
 
-    @with_lock
-    def write(self, data: bytes, offset: int, truncate: bool=True) -> None:
-        filename = self.path()
-        self.assert_headers_file_available(filename)
-        with open(filename, 'rb+') as f:
-            if truncate and offset != self._size * HEADER_SIZE:
-                f.seek(offset)
-                f.truncate()
-            f.seek(offset)
-            f.write(data)
-            f.flush()
-            os.fsync(f.fileno())
-        self.update_size()
+    def write(self, raw_header: bytes, height: int):
+        if self.forkpoint > 0 and height < self.forkpoint:
+            return
+        if not raw_header:
+            if height:
+                self.delete(height)
+            else:
+                self.delete_all()
+            return
+        with self.lock:
+            self.logger.info(f'{self.path()} {self.forkpoint} try to write {height}')
+            if height > self._size + self.forkpoint:
+                return
+            try:
+                conn = self.conn
+                cursor = self.conn.cursor()
+            except (sqlite3.ProgrammingError, AttributeError):
+                conn = sqlite3.connect(self.path(), check_same_thread=False)
+                cursor = conn.cursor()
+            cursor.execute('REPLACE INTO header (height, data) VALUES(?,?)', (height, raw_header))
+            cursor.close()
+            conn.commit()
+            self.update_size()
+
+    def delete(self, height: int):
+        self.logger.info(f'{self.forkpoint} try to delete {height}')
+        if self.forkpoint > 0 and height < self.forkpoint:
+            return
+        with self.lock:
+            self.logger.info(f'{self.forkpoint} try to delete {height}')
+            try:
+                conn = self.conn
+                cursor = conn.cursor()
+            except (sqlite3.ProgrammingError, AttributeError):
+                conn = sqlite3.connect(self.path(), check_same_thread=False)
+                cursor = conn.cursor()
+            cursor.execute('DELETE FROM header where height=?', (height,))
+            cursor.close()
+            conn.commit()
+            self.update_size()
+
+    def delete_all(self):
+        if self.swaping.is_set():
+            return
+        with self.lock:
+            try:
+                conn = self.conn
+                cursor = self.conn.cursor()
+            except (sqlite3.ProgrammingError, AttributeError):
+                conn = sqlite3.connect(self.path(), check_same_thread=False)
+                cursor = conn.cursor()
+            cursor.execute('DELETE FROM header')
+            cursor.close()
+            conn.commit()
+            self._size = 0
 
     @with_lock
     def save_header(self, header: dict) -> None:
-        delta = header.get('block_height') - self.forkpoint
         data = bfh(serialize_header(header))
-        # headers are only _appended_ to the end:
-        assert delta == self.size(), (delta, self.size())
-        assert len(data) == HEADER_SIZE
-        self.write(data, delta*HEADER_SIZE)
+        self.write(data, header.get('block_height'))
         self.swap_with_parent()
 
     @with_lock
-    def read_header(self, height: int) -> Optional[dict]:
+    def read_header(self, height: int, deserialize=True) -> Union[dict, bytes]:
         if height < 0:
             return
         if height < self.forkpoint:
             return self.parent.read_header(height)
         if height > self.height():
             return
-        delta = height - self.forkpoint
-        name = self.path()
-        self.assert_headers_file_available(name)
-        with open(name, 'rb') as f:
-            f.seek(delta * HEADER_SIZE)
-            h = f.read(HEADER_SIZE)
-            if len(h) < HEADER_SIZE:
-                raise Exception('Expected to read a full header. This was only {} bytes'.format(len(h)))
-        if h == bytes([0])*HEADER_SIZE:
-            return None
-        return deserialize_header(h, height)
+
+        try:
+            conn = sqlite3.connect(self.path(), check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute('SELECT data FROM header WHERE height=?', (height,))
+            result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+        except BaseException as e:
+            self.logger.error(f'read_header error:{e}')
+            return
+
+        if not result or len(result) < 1:
+            self.logger.error(f'read_header {height}, {self.forkpoint}, {self.parent.get_id()}, {result}, {self.height()}')
+            self.update_size()
+            return
+        header = result[0]
+        if deserialize:
+            if type(header) == str:
+                header = bfh(header)
+            return deserialize_header(header, height)
+        return header
 
     def header_at_tip(self) -> Optional[dict]:
         """Return latest header."""
@@ -528,19 +586,12 @@ class Blockchain(Logger):
         return False
 
     def get_hash(self, height: int) -> str:
-        def is_height_checkpoint():
-            within_cp_range = height <= constants.net.max_checkpoint()
-            at_chunk_boundary = (height+1) % 2016 == 0
-            return within_cp_range and at_chunk_boundary
-
         if height == -1:
             return '0000000000000000000000000000000000000000000000000000000000000000'
         elif height == 0:
             return constants.net.GENESIS
-        elif is_height_checkpoint():
-            index = height // 2016
-            h, t = self.checkpoints[index]
-            return h
+        elif str(height) in self.checkpoints:
+            return self.checkpoints[str(height)]
         else:
             header = self.read_header(height)
             if header is None:
@@ -621,28 +672,7 @@ class Blockchain(Logger):
     def get_chainwork(self, height=None) -> int:
         if height is None:
             height = max(0, self.height())
-        if constants.net.TESTNET:
-            # On testnet/regtest, difficulty works somewhat different.
-            # It's out of scope to properly implement that.
-            return height
-        last_retarget = height // 2016 * 2016 - 1
-        cached_height = last_retarget
-        while _CHAINWORK_CACHE.get(self.get_hash(cached_height)) is None:
-            if cached_height <= -1:
-                break
-            cached_height -= 2016
-        assert cached_height >= -1, cached_height
-        running_total = _CHAINWORK_CACHE[self.get_hash(cached_height)]
-        while cached_height < last_retarget:
-            cached_height += 2016
-            work_in_single_header = self.chainwork_of_header_at_height(cached_height)
-            work_in_chunk = 2016 * work_in_single_header
-            running_total += work_in_chunk
-            _CHAINWORK_CACHE[self.get_hash(cached_height)] = running_total
-        cached_height += 2016
-        work_in_single_header = self.chainwork_of_header_at_height(cached_height)
-        work_in_last_partial_chunk = (height % 2016 + 1) * work_in_single_header
-        return running_total + work_in_last_partial_chunk
+        return height
 
     def can_connect(self, header: dict, check_height: bool=True) -> bool:
         if header is None:
@@ -668,17 +698,23 @@ class Blockchain(Logger):
             return False
         return True
 
-    def connect_chunk(self, idx: int, hexdata: str) -> bool:
+    def connect_chunk(self, idx: int, data: list) -> bool:
         assert idx >= 0, idx
         try:
-            data = bfh(hexdata)
             self.verify_chunk(idx, data)
+        except BaseException as e:
+            self.logger.info(f'verify_chunk idx {idx} failed: {repr(e)}')
+            print(traceback.format_exc())
+            return False
+
+        try:
             self.save_chunk(idx, data)
             return True
         except BaseException as e:
-            self.logger.info(f'verify_chunk idx {idx} failed: {repr(e)}')
+            self.logger.info(f'save_chunk idx {idx} failed: {repr(e)}')
+            print(traceback.format_exc())
             return False
-
+    
     def get_checkpoints(self):
         # for each chunk, store the hash of the last block and the target after the chunk
         cp = []
