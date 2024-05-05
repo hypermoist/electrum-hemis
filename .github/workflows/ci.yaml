@@ -18,7 +18,7 @@ jobs:
       - name: Compile Windows binary
         env:
           TARGET_OS: Windows
-        run: docker run --name electrum-hms-wine-builder-cont -v $PWD:/opt/wine64/drive_c/electrum-hemis --rm --workdir /opt/wine64/drive_c/electrum-hemis/contrib/build-wine electrum-hms-wine-builder-img ./make_win.sh
+        run: docker run --name electrum-hms-wine-builder-cont -v $PWD:/opt/wine64/drive_c/electrum-hms --rm --workdir /opt/wine64/drive_c/electrum-hms/contrib/build-wine electrum-hms-wine-builder-img ./make_win.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -42,7 +42,7 @@ jobs:
       - name: Builder image
         run: docker build -t electrum-hms-appimage-builder-img ./contrib/build-linux/appimage/
       - name: Compile Linux AppImage
-        run: docker run --name electrum-hms-appimage-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/appimage electrum-hms-appimage-builder-img ./make_appimage.sh
+        run: docker run --name electrum-hms-appimage-builder-cont -v $PWD:/opt/electrum-hms --rm --workdir /opt/electrum-hms/contrib/build-linux/appimage electrum-hms-appimage-builder-img ./make_appimage.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -62,7 +62,7 @@ jobs:
       - name: Builder image
         run: docker build -t electrum-hms-sdist-builder-img ./contrib/build-linux/sdist/
       - name: Compile Linux tarball
-        run: docker run --name electrum-hms-sdist-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/sdist electrum-hms-sdist-builder-img ./make_sdist.sh
+        run: docker run --name electrum-hms-sdist-builder-cont -v $PWD:/opt/electrum-hms --rm --workdir /opt/electrum-hms/contrib/build-linux/sdist electrum-hms-sdist-builder-img ./make_sdist.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -82,7 +82,7 @@ jobs:
       - name: Builder image
         run: docker build -t electrum-hms-source-only-tarball-builder-img ./contrib/build-linux/sdist/
       - name: Compile Linux tarball
-        run: docker run --name electrum-hms-source-only-tarball-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/sdist --env OMIT_UNCLEAN_FILES=1 electrum-hms-source-only-tarball-builder-img ./make_sdist.sh
+        run: docker run --name electrum-hms-source-only-tarball-builder-cont -v $PWD:/opt/electrum-hms --rm --workdir /opt/electrum-hms/contrib/build-linux/sdist --env OMIT_UNCLEAN_FILES=1 electrum-hms-source-only-tarball-builder-img ./make_sdist.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -125,7 +125,7 @@ jobs:
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
-          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml arm64-v8a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hms -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hms electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml arm64-v8a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -168,7 +168,7 @@ jobs:
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
-          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml armeabi-v7a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hms -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hms electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml armeabi-v7a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -211,7 +211,7 @@ jobs:
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
-          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml x86_64 release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hms -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hms electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml x86_64 release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
