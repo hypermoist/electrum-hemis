@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request, workflow_dispatch]
+on: [push, pull_request]
 
 jobs:
   windows:
@@ -10,26 +10,26 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10.11
+          python-version: 3.11.9
       - name: Builder image
         env:
           TARGET_OS: Windows
-        run: docker build -t electrum-wine-builder-img ./contrib/build-wine/
+        run: docker build -t electrum-hms-wine-builder-img ./contrib/build-wine/
       - name: Compile Windows binary
         env:
           TARGET_OS: Windows
-        run: docker run --name electrum-wine-builder-cont -v $PWD:/opt/wine64/drive_c/electrum-hemis --rm --workdir /opt/wine64/drive_c/electrum-hemis/contrib/build-wine electrum-wine-builder-img ./make_win.sh
+        run: docker run --name electrum-hms-wine-builder-cont -v $PWD:/opt/wine64/drive_c/electrum-hemis --rm --workdir /opt/wine64/drive_c/electrum-hemis/contrib/build-wine electrum-hms-wine-builder-img ./make_win.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-windows
+          name: electrum-hms-${{ github.sha }}-windows
           path: contrib/build-wine/dist/*.exe
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-windows
+          name: electrum-hms-${{ github.sha }}-windows
 
   appimage:
     runs-on: ubuntu-latest
@@ -38,62 +38,62 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10.11
+          python-version: 3.11.9
       - name: Builder image
-        run: docker build -t electrum-appimage-builder-img ./contrib/build-linux/appimage/
+        run: docker build -t electrum-hms-appimage-builder-img ./contrib/build-linux/appimage/
       - name: Compile Linux AppImage
-        run: docker run --name electrum-appimage-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/appimage electrum-appimage-builder-img ./make_appimage.sh
+        run: docker run --name electrum-hms-appimage-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/appimage electrum-hms-appimage-builder-img ./make_appimage.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-appimage
+          name: electrum-hms-${{ github.sha }}-appimage
           path: dist/*.AppImage
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-appimage
+          name: electrum-hms-${{ github.sha }}-appimage
 
   tarball:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Builder image
-        run: docker build -t electrum-sdist-builder-img ./contrib/build-linux/sdist/
+        run: docker build -t electrum-hms-sdist-builder-img ./contrib/build-linux/sdist/
       - name: Compile Linux tarball
-        run: docker run --name electrum-sdist-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/sdist electrum-sdist-builder-img ./make_sdist.sh
+        run: docker run --name electrum-hms-sdist-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/sdist electrum-hms-sdist-builder-img ./make_sdist.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-tarball
+          name: electrum-hms-${{ github.sha }}-tarball
           path: dist/*.tar.gz
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-tarball
+          name: electrum-hms-${{ github.sha }}-tarball
 
   source-only-tarball:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Builder image
-        run: docker build -t electrum-source-only-tarball-builder-img ./contrib/build-linux/sdist/
+        run: docker build -t electrum-hms-source-only-tarball-builder-img ./contrib/build-linux/sdist/
       - name: Compile Linux tarball
-        run: docker run --name electrum-source-only-tarball-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/sdist --env OMIT_UNCLEAN_FILES=1 electrum-source-only-tarball-builder-img ./make_sdist.sh
+        run: docker run --name electrum-hms-source-only-tarball-builder-cont -v $PWD:/opt/electrum-hemis --rm --workdir /opt/electrum-hemis/contrib/build-linux/sdist --env OMIT_UNCLEAN_FILES=1 electrum-hms-source-only-tarball-builder-img ./make_sdist.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-source-only-tarball
+          name: electrum-hms-${{ github.sha }}-source-only-tarball
           path: dist/*.tar.gz
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-source-only-tarball
+          name: electrum-hms-${{ github.sha }}-source-only-tarball
 
   android-qml-arm64-v8a:
     runs-on: ubuntu-latest
@@ -116,27 +116,27 @@ jobs:
           large-packages: true
           swap-storage: true
       - name: Builder image
-        run: docker build -t electrum-android-builder-img --file contrib/android/Dockerfile .
+        run: docker build -t electrum-hms-android-builder-img --file contrib/android/Dockerfile .
       - name: Compile Android apk
         env:
            ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhemis.keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
-          sudo docker run --name electrum-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-android-builder-img ./contrib/android/make_apk.sh qml arm64-v8a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml arm64-v8a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-android-arm64-v8a
+          name: electrum-hms-${{ github.sha }}-android-arm64-v8a
           path: dist/*.apk
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-android-arm64-v8a
+          name: electrum-hms-${{ github.sha }}-android-arm64-v8a
 
   android-qml-armeabi-v7a:
     runs-on: ubuntu-latest
@@ -159,27 +159,27 @@ jobs:
           large-packages: true
           swap-storage: true
       - name: Builder image
-        run: docker build -t electrum-android-builder-img --file contrib/android/Dockerfile .
+        run: docker build -t electrum-hms-android-builder-img --file contrib/android/Dockerfile .
       - name: Compile Android apk
         env:
            ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhemis.keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
-          sudo docker run --name electrum-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-android-builder-img ./contrib/android/make_apk.sh qml armeabi-v7a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml armeabi-v7a release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-android-armeabi-v7a
+          name: electrum-hms-${{ github.sha }}-android-armeabi-v7a
           path: dist/*.apk
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-android-armeabi-v7a
+          name: electrum-hms-${{ github.sha }}-android-armeabi-v7a
 
   android-qml-x86_64:
     runs-on: ubuntu-latest
@@ -202,27 +202,27 @@ jobs:
           large-packages: true
           swap-storage: true
       - name: Builder image
-        run: docker build -t electrum-android-builder-img --file contrib/android/Dockerfile .
+        run: docker build -t electrum-hms-android-builder-img --file contrib/android/Dockerfile .
       - name: Compile Android apk
         env:
            ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhemis.keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
-          sudo docker run --name electrum-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-android-builder-img ./contrib/android/make_apk.sh qml x86_64 release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          sudo docker run --name electrum-hms-android-builder-cont -v $PWD:/home/user/wspace/electrum-hemis -v /.buildozer/.gradle:/home/user/.gradle -v $TMP_KEYSTORE_FILE_PATH:/root/.keystore --workdir /home/user/wspace/electrum-hemis electrum-hms-android-builder-img ./contrib/android/make_apk.sh qml x86_64 release ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-android-x86_64
+          name: electrum-hms-${{ github.sha }}-android-x86_64
           path: dist/*.apk
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-android-x86_64
+          name: electrum-hms-${{ github.sha }}-android-x86_64
 
   macos:
     runs-on: macos-11
@@ -231,7 +231,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10.11
+          python-version: 3.11.9
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 12.4.0
@@ -240,11 +240,11 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-macos
+          name: electrum-hms-${{ github.sha }}-macos
           path: dist/*.dmg
           if-no-files-found: error
           retention-days: 7
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: electrum-hemis-${{ github.sha }}-macos
+          name: electrum-hms-${{ github.sha }}-macos
