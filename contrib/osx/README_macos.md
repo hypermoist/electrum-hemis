@@ -1,4 +1,4 @@
-# Running Electrum from source on macOS (development version)
+# Running Electrum-HMS from source on macOS (development version)
 
 ## Prerequisites
 
@@ -10,8 +10,8 @@
 
 ### 1. Check out the code from GitHub:
 ```
-$ git clone https://github.com/spesmilo/electrum.git
-$ cd electrum
+$ git clone https://github.com/Hemis/electrum-hms.git
+$ cd electrum-hms
 $ git submodule update --init
 ```
 
@@ -42,7 +42,7 @@ $ echo 'export PATH="/opt/homebrew/opt/pyqt@5/5.15.4_1/bin:$PATH"' >> ~/.zshrc
 $ source ~/.zshrc
 ```
 
-### 4. Run electrum:
+### 4. Run electrum-hms:
 ```
-$ ./run_electrum
+$ ./run_electrum_hms
 ```

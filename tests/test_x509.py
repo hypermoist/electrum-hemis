@@ -1,6 +1,6 @@
 import unittest
 
-from electrum_hemis.x509 import X509
+from electrum_hms.x509 import X509
 
 from . import ElectrumTestCase
 

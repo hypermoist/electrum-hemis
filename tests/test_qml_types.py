@@ -1,11 +1,11 @@
 import shutil
 import tempfile
 
-from electrum_hemis import SimpleConfig
-from electrum_hemis.gui.qml.qetypes import QEAmount
-from electrum_hemis.invoices import Invoice, LN_EXPIRY_NEVER
+from electrum import SimpleConfig
+from electrum_hms.gui.qml.qetypes import QEAmount
+from electrum_hms.invoices import Invoice, LN_EXPIRY_NEVER
 from tests.qt_util import QETestCase, QEventReceiver, qt_test
-from electrum_hemis.transaction import PartialTxOutput
+from electrum_hms.transaction import PartialTxOutput
 
 
 class WalletMock:

@@ -4,7 +4,7 @@ Building macOS binaries
 ✓ _This binary should be reproducible, meaning you should be able to generate
    binaries that match the official releases._
 
-This guide explains how to build Electrum binaries for macOS systems.
+This guide explains how to build Electrum-HMS binaries for macOS systems.
 
 
 ## Building the binary
@@ -41,8 +41,8 @@ We currently build the release binaries on macOS 11.7.10, and these seem to run 
 - We recommend creating a VM with a macOS guest, e.g. using VirtualBox,
   and building there.
 - The guest should run macOS 11.7.10 (that specific version).
-- The unix username should be `vagrant`, and `electrum` should be cloned directly
-  to the user's home dir: `/Users/vagrant/electrum`.
+- The unix username should be `vagrant`, and `electrum-hms` should be cloned directly
+  to the user's home dir: `/Users/vagrant/electrum-hms`.
 - Builders need to use the same version of Xcode; and note that
   full Xcode and Xcode commandline tools differ!
   We use the Xcode CLI tools as installed by brew. (version 13.2)
@@ -69,8 +69,8 @@ We currently build the release binaries on macOS 11.7.10, and these seem to run 
     ```
 - Installing extraneous brew packages can result in build differences.
   For example, pyinstaller seems to pick up and bundle brew-installed `libffi`.
-  So having a dedicated "electrum binary builder macOS VM" is recommended.
-- Make sure that you are building from a fresh clone of electrum
+  So having a dedicated "electrum-hms binary builder macOS VM" is recommended.
+- Make sure that you are building from a fresh clone of electrum-hms
   (or run e.g. `git clean -ffxd` to rm all local changes).
 
 
@@ -81,20 +81,20 @@ Install [`brew`](https://brew.sh/).
 Let brew install the Xcode CLI tools.
 
 
-#### 2. Build Electrum
+#### 2. Build Electrum-HMS
 
-    cd electrum
+    cd electrum-hms
     ./contrib/osx/make_osx.sh
 
-This creates both a folder named Electrum.app and the .dmg file (both unsigned).
+This creates both a folder named Electrum-HMS.app and the .dmg file (both unsigned).
 
 ##### 2.1. For release binaries, here be dragons
 
 If you want the binaries codesigned for macOS and notarised by Apple's central server,
 also run the `sign_osx.sh` script:
 
-    CODESIGN_CERT="Developer ID Application: Electrum Technologies GmbH (L6P37P7P56)" \
-    APPLE_TEAM_ID="L6P37P7P56" \
+    CODESIGN_CERT="Developer ID Application: Hemis Developers (A82F56PX3Q)" \
+    APPLE_TEAM_ID="A82F56PX3Q" \
     APPLE_ID_USER="me@email.com" \
     APPLE_ID_PASSWORD="1234" \
     ./contrib/osx/sign_osx.sh
@@ -111,7 +111,7 @@ repository.
 2. Use the provided `compare_dmg` script to compare the binary you built with
    the official release binary.
     ```
-    $ ./contrib/osx/compare_dmg dist/electrum-*.dmg electrum_dmg_official_release.dmg
+    $ ./contrib/osx/compare_dmg dist/electrum-hms-*.dmg electrum_dmg_official_release.dmg
     ```
    The `compare_dmg` script is mostly only needed as the official release binary is
    codesigned and notarized. Otherwise, the built `.app` bundles should be byte-identical.

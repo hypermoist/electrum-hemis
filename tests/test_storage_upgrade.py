@@ -6,13 +6,13 @@ from typing import Optional
 import asyncio
 import inspect
 
-import electrum_hemis
-from electrum_hemis.wallet_db import WalletDBUpgrader, WalletDB, WalletRequiresUpgrade, WalletRequiresSplit
-from electrum_hemis.wallet import Wallet
-from electrum_hemis import constants
-from electrum_hemis import util
-from electrum_hemis.plugin import Plugins
-from electrum_hemis.simple_config import SimpleConfig
+import electrum_hms
+from electrum_hms.wallet_db import WalletDBUpgrader, WalletDB, WalletRequiresUpgrade, WalletRequiresSplit
+from electrum_hms.wallet import Wallet
+from electrum_hms import constants
+from electrum_hms import util
+from electrum_hms.plugin import Plugins
+from electrum_hms.simple_config import SimpleConfig
 
 from . import as_testnet
 from .test_wallet import WalletTestCase
@@ -323,7 +323,7 @@ class TestStorageUpgrade(WalletTestCase):
 
 ##########
 
-    plugins: 'electrum_hemis.plugin.Plugins'
+    plugins: 'electrum_hms.plugin.Plugins'
 
     def setUp(self):
         super().setUp()

@@ -5,8 +5,8 @@ RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends 
     ca-certificates
 
 # pin the distro packages.
-COPY apt.sources.list /etc/apt/sources.list
-COPY apt.preferences /etc/apt/preferences.d/snapshot
+# COPY apt.sources.list /etc/apt/sources.list
+# COPY apt.preferences /etc/apt/preferences.d/snapshot
 
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
@@ -56,18 +56,20 @@ RUN DEBIAN_CODENAME=$(lsb_release --codename --short) && \
     apt-get autoremove -y && \
     apt-get clean
 
-# create new user to avoid using root; but with sudo access and no password for convenience.
-ARG UID=1000
-ENV USER="user"
-ENV HOME_DIR="/home/${USER}"
-ENV WORK_DIR="${HOME_DIR}/wspace" \
-    PATH="${HOME_DIR}/.local/bin:${PATH}"
-RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
-RUN usermod -append --groups sudo ${USER}
-RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-WORKDIR ${WORK_DIR}
-RUN chown --recursive ${USER} ${WORK_DIR}
-RUN chown ${USER} /opt
-USER ${USER}
+RUN git config --global --add safe.directory '*'
 
-RUN mkdir --parents "/opt/wine64/drive_c/electrum"
+# create new user to avoid using root; but with sudo access and no password for convenience.
+#ARG UID=1000
+#ENV USER="user"
+#ENV HOME_DIR="/home/${USER}"
+#ENV WORK_DIR="${HOME_DIR}/wspace" \
+#    PATH="${HOME_DIR}/.local/bin:${PATH}"
+#RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
+#RUN usermod -append --groups sudo ${USER}
+#RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#WORKDIR ${WORK_DIR}
+#RUN chown --recursive ${USER} ${WORK_DIR}
+#RUN chown ${USER} /opt
+#USER ${USER}
+
+RUN mkdir --parents "/opt/wine64/drive_c/electrum-hms"

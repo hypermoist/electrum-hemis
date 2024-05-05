@@ -4,11 +4,11 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules, coll
 
 import sys, os
 
-PACKAGE_NAME='Electrum.app'
-PYPKG='electrum'
-MAIN_SCRIPT='run_electrum'
+PACKAGE_NAME='Electrum-HMS.app'
+PYPKG='electrum_hms'
+MAIN_SCRIPT='run_electrum_hms'
 PROJECT_ROOT = os.path.abspath(".")
-ICONS_FILE=f"{PROJECT_ROOT}/{PYPKG}/gui/icons/electrum.icns"
+ICONS_FILE=f"{PROJECT_ROOT}/{PYPKG}/gui/icons/electrum-hms.icns"
 
 
 VERSION = os.environ.get("ELECTRUM_VERSION")
@@ -109,10 +109,10 @@ app = BUNDLE(
         'NSSupportsAutomaticGraphicsSwitching': 'True',
         'CFBundleURLTypes':
             [{
-                'CFBundleURLName': 'bitcoin',
-                'CFBundleURLSchemes': ['bitcoin', 'lightning', ],
+                'CFBundleURLName': 'hemis',
+                'CFBundleURLSchemes': ['hemis', 'lightning', ],
             }],
         'LSMinimumSystemVersion': '10.13.0',
-        'NSCameraUsageDescription': 'Electrum would like to access the camera to scan for QR codes',
+        'NSCameraUsageDescription': 'Electrum-HMS would like to access the camera to scan for QR codes',
     },
 )

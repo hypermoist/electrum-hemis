@@ -1,7 +1,7 @@
 import random
 
-import electrum_hemis.mpp_split as mpp_split  # side effect for PART_PENALTY
-from electrum_hemis.lnutil import NoPathFound
+import electrum_hms.mpp_split as mpp_split  # side effect for PART_PENALTY
+from electrum_hms.lnutil import NoPathFound
 
 from . import ElectrumTestCase
 

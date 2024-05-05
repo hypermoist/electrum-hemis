@@ -30,7 +30,7 @@ fi
 # see https://stackoverflow.com/questions/51437924/bash-shell-sftp-check-if-directory-exists-before-creating
 
 sftp -oBatchMode=no -b - "$SSHUSER@uploadserver" << !
-   cd electrum-downloads-airlock
+   cd electrum-hms-downloads-airlock
    -mkdir "$VERSION"
    -chmod 777 "$VERSION"
    cd "$VERSION"

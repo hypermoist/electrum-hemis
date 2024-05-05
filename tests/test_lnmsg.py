@@ -1,14 +1,14 @@
 import io
 
-from electrum_hemis.lnmsg import (read_bigsize_int, write_bigsize_int, FieldEncodingNotMinimal,
+from electrum_hms.lnmsg import (read_bigsize_int, write_bigsize_int, FieldEncodingNotMinimal,
                             UnexpectedEndOfStream, LNSerializer, UnknownMandatoryTLVRecordType,
                             MalformedMsg, MsgTrailingGarbage, MsgInvalidFieldOrder, encode_msg,
                             decode_msg, UnexpectedFieldSizeForEncoder, OnionWireSerializer,
                             UnknownMsgType)
-from electrum_hemis.lnonion import OnionRoutingFailure
-from electrum_hemis.util import bfh
-from electrum_hemis.lnutil import ShortChannelID, LnFeatures
-from electrum_hemis import constants
+from electrum_hms.lnonion import OnionRoutingFailure
+from electrum_hms.util import bfh
+from electrum_hms.lnutil import ShortChannelID, LnFeatures
+from electrum_hms import constants
 
 from . import ElectrumTestCase
 
@@ -369,4 +369,3 @@ class TestLNMsg(ElectrumTestCase):
         with self.assertRaises(UnknownMsgType):
             OnionWireSerializer.decode_msg(orf2.to_bytes())
         self.assertEqual(None, orf2.decode_data())
-

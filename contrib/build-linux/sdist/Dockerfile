@@ -11,22 +11,23 @@ RUN apt-get update -q && \
         python3-pip \
         python3-setuptools \
         python3-venv \
-        libssl-dev \
         faketime \
         && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
 
+RUN git config --global --add safe.directory '*'
+
 # create new user to avoid using root; but with sudo access and no password for convenience.
-ARG UID=1000
-ENV USER="user"
-ENV HOME_DIR="/home/${USER}"
-ENV WORK_DIR="${HOME_DIR}/wspace" \
-    PATH="${HOME_DIR}/.local/bin:${PATH}"
-RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
-RUN usermod -append --groups sudo ${USER}
-RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-WORKDIR ${WORK_DIR}
-RUN chown --recursive ${USER} ${WORK_DIR}
-USER ${USER}
+#ARG UID=1000
+#ENV USER="user"
+#ENV HOME_DIR="/home/${USER}"
+#ENV WORK_DIR="${HOME_DIR}/wspace" \
+#    PATH="${HOME_DIR}/.local/bin:${PATH}"
+#RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
+#RUN usermod -append --groups sudo ${USER}
+#RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#WORKDIR ${WORK_DIR}
+#RUN chown --recursive ${USER} ${WORK_DIR}
+#USER ${USER}

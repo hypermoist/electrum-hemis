@@ -12,8 +12,8 @@ RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends 
     ca-certificates
 
 # pin the distro packages
-COPY apt.sources.list /etc/apt/sources.list
-COPY apt.preferences /etc/apt/preferences.d/snapshot
+# COPY apt.sources.list /etc/apt/sources.list
+# COPY apt.preferences /etc/apt/preferences.d/snapshot
 
 RUN apt-get update -q && \
     apt-get install -qy --allow-downgrades \
@@ -72,15 +72,17 @@ RUN apt-get update -q && \
     apt-get autoremove -y && \
     apt-get clean
 
+RUN git config --global --add safe.directory '*'
+
 # create new user to avoid using root; but with sudo access and no password for convenience.
-ARG UID=1000
-ENV USER="user"
-ENV HOME_DIR="/home/${USER}"
-ENV WORK_DIR="${HOME_DIR}/wspace" \
-    PATH="${HOME_DIR}/.local/bin:${PATH}"
-RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
-RUN usermod -append --groups sudo ${USER}
-RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-WORKDIR ${WORK_DIR}
-RUN chown --recursive ${USER} ${WORK_DIR}
-USER ${USER}
+#ARG UID=1000
+#ENV USER="user"
+#ENV HOME_DIR="/home/${USER}"
+#ENV WORK_DIR="${HOME_DIR}/wspace" \
+#    PATH="${HOME_DIR}/.local/bin:${PATH}"
+#RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
+#RUN usermod -append --groups sudo ${USER}
+#RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#WORKDIR ${WORK_DIR}
+#RUN chown --recursive ${USER} ${WORK_DIR}
+#USER ${USER}

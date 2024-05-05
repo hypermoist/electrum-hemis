@@ -11,8 +11,8 @@ RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends 
     ca-certificates
 
 # pin the distro packages.
-COPY contrib/android/apt.sources.list /etc/apt/sources.list
-COPY contrib/android/apt.preferences /etc/apt/preferences.d/snapshot
+# COPY contrib/android/apt.sources.list /etc/apt/sources.list
+# COPY contrib/android/apt.preferences /etc/apt/preferences.d/snapshot
 
 # configure locale
 RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends --allow-downgrades \
@@ -143,7 +143,8 @@ RUN apt -y update -q \
     && apt -y autoremove \
     && apt -y clean
 
-# cross compile deps for Qt6
+RUN git config --global --add safe.directory '*'
+
 RUN apt -y update -qq \
     && apt -y install -qq --no-install-recommends --allow-downgrades \
         libopengl-dev \
@@ -154,18 +155,18 @@ RUN apt -y update -qq \
 
 
 # create new user to avoid using root; but with sudo access and no password for convenience.
-ARG UID=1000
-ENV USER="user"
+#ARG UID=1000
+ENV USER="root"
 ENV HOME_DIR="/home/${USER}"
 ENV WORK_DIR="${HOME_DIR}/wspace" \
     PATH="${HOME_DIR}/.local/bin:${PATH}"
-RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
-RUN usermod -append --groups sudo ${USER}
-RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#RUN useradd --uid $UID --create-home --shell /bin/bash ${USER}
+#RUN usermod -append --groups sudo ${USER}
+#RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 WORKDIR ${WORK_DIR}
-RUN chown --recursive ${USER} ${WORK_DIR} ${ANDROID_SDK_HOME}
-RUN chown ${USER} /opt
-USER ${USER}
+#RUN chown --recursive ${USER} ${WORK_DIR} ${ANDROID_SDK_HOME}
+#RUN chown ${USER} /opt
+#USER ${USER}
 
 # venv, VIRTUAL_ENV is used by buildozer to indicate a venv environment
 ENV VIRTUAL_ENV=/opt/venv
@@ -176,7 +177,7 @@ COPY contrib/deterministic-build/requirements-build-base.txt /opt/deterministic-
 COPY contrib/deterministic-build/requirements-build-android.txt /opt/deterministic-build/
 RUN /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies \
     -r /opt/deterministic-build/requirements-build-base.txt
-RUN /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies --no-binary :all: \
+RUN /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies --no-binary :all: --only-binary Cython \
     -r /opt/deterministic-build/requirements-build-android.txt
 
 # install buildozer
@@ -188,6 +189,8 @@ RUN cd /opt \
     && git fetch --all \
     # commit: from branch electrum-qt6 (note: careful with force-pushing! see #8162) \
     && git checkout "4403ecf445f10b5fbf7c74f4621bf2b922ad35b5^{commit}" \
+    # SETUPTOOLS_USE_DISTUTILS=stdlib needed to build buildozer for HMS
+    && SETUPTOOLS_USE_DISTUTILS=stdlib /opt/venv/bin/python3  -m pip install --no-build-isolation --no-dependencies -e . \
     && /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies -e .
 
 # install python-for-android

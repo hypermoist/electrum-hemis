@@ -2,9 +2,9 @@ from pprint import pprint
 import unittest
 from typing import NamedTuple
 
-from electrum_hemis.lnutil import RECEIVED, LOCAL, REMOTE, SENT, HTLCOwner, Direction
-from electrum_hemis.lnhtlc import HTLCManager
-from electrum_hemis.json_db import StoredDict
+from electrum_hms.lnutil import RECEIVED, LOCAL, REMOTE, SENT, HTLCOwner, Direction
+from electrum_hms.lnhtlc import HTLCManager
+from electrum_hms.json_db import StoredDict
 
 from . import ElectrumTestCase
 

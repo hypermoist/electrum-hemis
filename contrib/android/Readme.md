@@ -1,9 +1,9 @@
 # Qml GUI
 
-The Qml GUI is used with Electrum on Android devices, since Electrum 4.4.
+The Qml GUI is used with Electrum-HMS on Android devices, since Electrum-HMS 4.4.
 To generate an APK file, follow these instructions.
 
-(note: older versions of Electrum for Android used the "kivy" GUI)
+(note: older versions of Electrum-HMS for Android used the "kivy" GUI)
 
 ## Android binary with Docker
 
@@ -64,18 +64,18 @@ You probably need to clear the cache: `rm -rf .buildozer/android/platform/build-
 ### How do I deploy on connected phone for quick testing?
 Assuming `adb` is installed:
 ```
-$ adb -d install -r dist/Electrum-*-arm64-v8a-debug.apk
-$ adb shell monkey -p org.it4f.electrum_hemis 1
+$ adb -d install -r dist/ElectrumHMS-*-arm64-v8a-debug.apk
+$ adb shell monkey -p org.it4f.electrumhms 1
 ```
 
 
 ### How do I get an interactive shell inside docker?
 ```
 $ docker run -it --rm \
-    -v $PWD:/home/user/wspace/electrum \
+    -v $PWD:/home/user/wspace/electrum-hms \
     -v $PWD/.buildozer/.gradle:/home/user/.gradle \
-    --workdir /home/user/wspace/electrum \
-    electrum-android-builder-img
+    --workdir /home/user/wspace/electrum-hms \
+    electrum-hms-android-builder-img
 ```
 
 
@@ -90,7 +90,7 @@ adb logcat | grep python
 ```
 Better `grep` but fragile because of `cut`:
 ```
-adb logcat | grep -F "`adb shell ps | grep org.it4f.electrum_hemis | cut -c14-19`"
+adb logcat | grep -F "`adb shell ps | grep org.it4f.Electrumhms | cut -c14-19`"
 ```
 
 
@@ -100,7 +100,7 @@ Install requirements:
 python3 -m pip install ".[qml_gui]"
 ```
 
-Run electrum with the `-g` switch: `electrum-hemis -g qml`
+Run electrum-hms with the `-g` switch: `electrum_hms -g qml`
 
 Notes:
 
@@ -135,16 +135,16 @@ of Android does not let you access the internal storage of an app without root.
 To pull a file:
 ```
 $ adb shell
-adb$ run-as org.it4f.electrum_hemis ls /data/data/org.it4f.electrum_hemis/files/data
+adb$ run-as org.it4f.electrumhms ls /data/data/org.it4f.electrumhms/files/data
 adb$ exit
-$ adb exec-out run-as org.it4f.electrum_hemis cat /data/data/org.it4f.electrum_hemis/files/data/wallets/my_wallet > my_wallet
+$ adb exec-out run-as org.it4f.electrumhms cat /data/data/org.it4f.electrumhms/files/data/wallets/my_wallet > my_wallet
 ```
 To push a file:
 ```
 $ adb push ~/wspace/tmp/my_wallet /data/local/tmp
 $ adb shell
 adb$ ls -la /data/local/tmp
-adb$ run-as org.it4f.testnet.electrum_hemis cp /data/local/tmp/my_wallet /data/data/org.it4f.testnet.electrum_hemis/files/data/testnet/wallets/
+adb$ run-as org.it4f.testnet.electrumhms cp /data/local/tmp/my_wallet /data/data/org.it4f.testnet.electrumhms/files/data/testnet/wallets/
 adb$ rm /data/local/tmp/my_wallet
 ```
 
@@ -153,11 +153,11 @@ Or use Android Studio: "Device File Explorer", which can download/upload data di
 ### How to investigate diff between binaries if reproducibility fails?
 ```
 cd dist/
-unzip Electrum-*.apk1 -d apk1
+unzip ElectrumHMS-*.apk1 -d apk1
 mkdir apk1/assets/private_mp3/
 tar -xzvf apk1/assets/private.tar --directory apk1/assets/private_mp3/
 
-unzip Electrum-*.apk2 -d apk2
+unzip ElectrumHMS-*.apk2 -d apk2
 mkdir apk2/assets/private_mp3/
 tar -xzvf apk2/assets/private.tar --directory apk2/assets/private_mp3/
 

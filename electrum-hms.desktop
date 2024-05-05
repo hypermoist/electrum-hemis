@@ -1,0 +1,23 @@
+# If you want Electrum-HMS to appear in a Linux app launcher ("start menu"), install this by doing:
+# sudo desktop-file-install electrum-hms.desktop
+# Note: This assumes $HOME/.local/bin is in your $PATH
+
+[Desktop Entry]
+Comment=Lightweight Hemis Client
+Exec=electrum-hms %u
+GenericName[en_US]=Electrum-HMS
+GenericName=Electrum-HMS
+Icon=electrum-hms
+Name[en_US]=Electrum-HMS Hemis Wallet
+Name=Electrum-HMS Hemis Wallet
+Categories=Finance;Network;
+StartupNotify=true
+StartupWMClass=electrum-hms
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/hemis;x-scheme-handler/lightning;
+Actions=Testnet;
+
+[Desktop Action Testnet]
+Exec=electrum-hms --testnet %u
+Name=Testnet mode

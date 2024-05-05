@@ -1,4 +1,4 @@
-# Running Electrum from source on Windows (development version)
+# Running Electrum-HMS from source on Windows (development version)
 
 ## Prerequisites
 
@@ -9,8 +9,8 @@
 
 ### 1. Check out the code from GitHub:
 ```
-> git clone https://github.com/spesmilo/electrum.git
-> cd electrum
+> git clone https://github.com/Hemis/electrum-hms.git
+> cd electrum-hms
 > git submodule update --init
 ```
 
@@ -23,8 +23,8 @@ Run install (this should install most dependencies):
 
 [libsecp256k1](https://github.com/bitcoin-core/secp256k1) is a required dependency.
 This is a C library, which you need to compile yourself.
-Electrum needs a dll, named `libsecp256k1-0.dll` (or newer `libsecp256k1-*.dll`),
-placed into the inner `electrum/` folder.
+Electrum-HMS needs a dll, named `libsecp256k1-0.dll` (or newer `libsecp256k1-*.dll`),
+placed into the inner `electrum_hms/` folder.
 
 For Unix-like systems, the (`contrib/make_libsecp256k1.sh`) script does this for you,
 however it does not work on Windows.
@@ -45,18 +45,17 @@ Alternatively, MSYS2 and MinGW-w64 can be used directly on Windows, as follows.
   $ pacman -S --needed git base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-autotools
   $ export PATH="$PATH:/mingw64/bin"
   ```
-  `cd` into the git clone, e.g. `C:\wspace\electrum` (auto-mounted at `/c/wspace/electrum`)
+  `cd` into the git clone, e.g. `C:\wspace\electrum-hms` (auto-mounted at `/c/wspace/electrum-hms`)
   ```
-  $ cd /c/wspace/electrum
+  $ cd /c/wspace/electrum-hms
   $ GCC_TRIPLET_HOST="x86_64-w64-mingw32" ./contrib/make_libsecp256k1.sh
   ```
 
 (note: this is a bit cumbersome, see [issue #5976](https://github.com/spesmilo/electrum/issues/5976)
 for discussion)
 
-### 3. Run electrum:
+### 3. Run electrum-hms:
 
 ```
-> python3 ./run_electrum
+> python3 ./run_electrum_hms
 ```
-

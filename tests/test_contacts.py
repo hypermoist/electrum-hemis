@@ -2,9 +2,9 @@ import os
 
 from . import ElectrumTestCase
 
-from electrum_hemis.simple_config import SimpleConfig
-from electrum_hemis.wallet import restore_wallet_from_text, Abstract_Wallet
-from electrum_hemis.daemon import Daemon
+from electrum_hms.simple_config import SimpleConfig
+from electrum_hms.wallet import restore_wallet_from_text, Abstract_Wallet
+from electrum_hms.daemon import Daemon
 
 
 class TestContacts(ElectrumTestCase):

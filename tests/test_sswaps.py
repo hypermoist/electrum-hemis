@@ -1,7 +1,7 @@
-from electrum_hemis import SimpleConfig
-from electrum_hemis.util import bfh
-from electrum_hemis.transaction import PartialTxInput, TxOutpoint
-from electrum_hemis.submarine_swaps import SwapManager, SwapData
+from electrum_hms import SimpleConfig
+from electrum_hms.util import bfh
+from electrum_hms.transaction import PartialTxInput, TxOutpoint
+from electrum_hms.submarine_swaps import SwapManager, SwapData
 
 from . import ElectrumTestCase
 
@@ -74,4 +74,3 @@ class TestSwapTxs(ElectrumTestCase):
             "0200000000010106871505e5f6dc76f406f38e34e29b54908c6b54da978c28c18fb39ab1dcec080000000000fdffffff0148fb01000000000016001497b4b718e7d06c9c43cd3bcf37905041b718b81f034730440220254e054fc195801aca3d62641a0f27d888f44d1dd66760ae5c3418502e82c141022014305da98daa27d665310115845d2fa6d4dc612d910a186db2624aa558bff9fe010065a914b12bd886ef4fd9ef1c03e899123f2c4b96cec0878763210267ca676c2ed05bb6c380880f1e50b6ef91025dfa963dc49d6c5cb9848f2acf7d670339ef24b1752103d8190cdfcc7dd929a583b7ea8fa8eb1d8463195d336be2f2df94f950ce8b659968ac39ef2400",
             str(tx)
         )
-
