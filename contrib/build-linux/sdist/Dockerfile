@@ -11,6 +11,7 @@ RUN apt-get update -q && \
         python3-pip \
         python3-setuptools \
         python3-venv \
+        libssl-dev \
         faketime \
         && \
     rm -rf /var/lib/apt/lists/* && \

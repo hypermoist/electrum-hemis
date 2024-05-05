@@ -5,8 +5,8 @@
 build/
 dist/
 *.egg/
-Electrum.egg-info/
-electrum/locale/
+Electrum*.egg-info/
+electrum_hemis/locale/
 .devlocaltmp/
 *_trial_temp
 packages
@@ -46,8 +46,8 @@ contrib/libusb/
 contrib/.venv_make_packages/
 
 # shared objects
-electrum/*.so
-electrum/*.so.*
-electrum/*.dll
-electrum/*.dylib
+electrum_hemis/*.so
+electrum_hemis/*.so.*
+electrum_hemis/*.dll
+electrum_hemis/*.dylib
 contrib/osx/*.dylib

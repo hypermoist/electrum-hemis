@@ -52,7 +52,7 @@ plugin_metadata = {
 print(json.dumps(plugin_metadata, indent=4))
 
 # update plugins.json file
-json_path = os.path.join(os.path.dirname(__file__), '..', 'electrum', 'plugins.json')
+json_path = os.path.join(os.path.dirname(__file__), '..', 'electrum_hemis', 'plugins.json')
 with open(json_path, 'r') as f:
     s = f.read()
 try:

@@ -35,9 +35,9 @@ data_files = []
 if platform.system() in ['Linux', 'FreeBSD', 'DragonFly']:
     # note: we can't use absolute paths here. see #7787
     data_files += [
-        (os.path.join('share', 'applications'),               ['electrum.desktop']),
-        (os.path.join('share', 'pixmaps'),                    ['electrum/gui/icons/electrum.png']),
-        (os.path.join('share', 'icons/hicolor/128x128/apps'), ['electrum/gui/icons/electrum.png']),
+        (os.path.join('share', 'applications'),               ['electrum-hemis.desktop']),
+        (os.path.join('share', 'pixmaps'),                    ['electrum_hemis/gui/icons/electrum.png']),
+        (os.path.join('share', 'icons/hicolor/128x128/apps'), ['electrum_hemis/gui/icons/electrum.png']),
     ]
 
 extras_require = {
@@ -63,7 +63,7 @@ setup(
     extras_require=extras_require,
     packages=(['electrum_hemis',]
               + [('electrum_hemis.'+pkg) for pkg in
-                 find_packages('electrum', exclude=["tests"])]),
+                 find_packages('electrum_hemis', exclude=["tests"])]),
     package_dir={
         'electrum_hemis': 'electrum_hemis'
     },
@@ -71,12 +71,12 @@ setup(
     # package_data kwarg lists what gets put in site-packages when pip installing the tar.gz.
     # By specifying include_package_data=True, MANIFEST.in becomes responsible for both.
     include_package_data=True,
-    scripts=['electrum_hemis/electrum'],
+    scripts=['electrum_hemis/electrum-hemis'],
     data_files=data_files,
     description="Lightweight Hemis Wallet",
-    author="Ahmed Bodiwl",
+    author="Ahmed Bodiwala",
     author_email="ahmedbodi@crypto-expert.com",
     license="MIT Licence",
-    url="https://electrum.org",
+    url="https://it4f.co.uk",
     long_description="""Lightweight Hemis Wallet""",
 )

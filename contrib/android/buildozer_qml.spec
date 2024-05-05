@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = Electrum Hemis
+title = Electrum-Hemis
 
 # (str) Package name
-package.name = Electrum
+package.name = Electrum_Hemis
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.electrum
+package.domain = org.it4f.electrum_hemis
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -21,11 +21,11 @@ source.exclude_exts = spec
 # (list) List of directory to exclude (let empty to not exclude anything)
 source.exclude_dirs = bin, build, dist, contrib, env,
     tests,
-    electrum/www,
-    electrum/scripts,
-    electrum/utils,
-    electrum/gui/qt,
-    electrum/plugins/payserver,
+    electrum_hemis/www,
+    electrum_hemis/scripts,
+    electrum_hemis/utils,
+    electrum_hemis/gui/qt,
+    electrum_hemis/plugins/payserver,
     packages/qdarkstyle,
     packages/qtpy,
     packages/bin,
@@ -41,7 +41,7 @@ source.exclude_patterns = Makefile,setup*,
 
 # (str) Application versioning (method 1)
 version.regex = APK_VERSION = '(.*)'
-version.filename = %(source.dir)s/electrum/version.py
+version.filename = %(source.dir)s/electrum_hemis/version.py
 
 # (str) Application versioning (method 2)
 #version = 1.9.8
@@ -63,12 +63,12 @@ requirements =
     libzbar
 
 # (str) Presplash of the application
-presplash.filename = %(source.dir)s/electrum/gui/icons/electrum_presplash.png
+presplash.filename = %(source.dir)s/electrum_hemis/gui/icons/electrum_presplash.png
 
 # (str) Icon of the application
-icon.filename = %(source.dir)s/electrum/gui/icons/android_electrum_icon_legacy.png
-icon.adaptive_foreground.filename = %(source.dir)s/electrum/gui/icons/android_electrum_icon_foreground.png
-icon.adaptive_background.filename = %(source.dir)s/electrum/gui/icons/android_electrum_icon_background.png
+icon.filename = %(source.dir)s/electrum_hemis/gui/icons/android_electrum_icon_legacy.png
+icon.adaptive_foreground.filename = %(source.dir)s/electrum_hemis/gui/icons/android_electrum_icon_foreground.png
+icon.adaptive_background.filename = %(source.dir)s/electrum_hemis/gui/icons/android_electrum_icon_background.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = portrait
@@ -139,7 +139,7 @@ android.add_jars = .buildozer/android/platform/*/build/libs_collections/Electrum
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = electrum/gui/qml/java_classes/
+android.add_src = electrum_hemis/gui/qml/java_classes/
 
 android.gradle_dependencies =
     com.android.support:support-compat:28.0.0,
