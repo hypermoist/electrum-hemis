@@ -12,6 +12,7 @@ RUN apt-get update -q && \
         python3-setuptools \
         python3-venv \
         faketime \
+        libssl-dev \
         && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
