@@ -87,9 +87,9 @@ def all_subclasses(cls) -> Set:
 ca_path = certifi.where()
 
 
-base_units = {'HMS':8, 'mHMS':5, 'groestls':2, 'gro':0}
+base_units = {'HMS':8, 'mHMS':5, 'sats':2, 'sat':0}
 base_units_inverse = inv_dict(base_units)
-base_units_list = ['HMS', 'mHMS', 'groestls', 'gro']  # list(dict) does not guarantee order
+base_units_list = ['HMS', 'mHMS', 'stats', 'sat']  # list(dict) does not guarantee order
 
 DECIMAL_POINT_DEFAULT = 8  # HMS
 
@@ -907,14 +907,6 @@ def age(
 mainnet_block_explorers = {
     'cryptoID.info': ('https://chainz.cryptoid.info/hms/',
                         {'tx': 'tx.dws?', 'addr': 'address.dws?'}),
-    'groestlsight': ('https://groestlsight.hemis.org/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'blockbook': ('https://blockbook.hemis.org/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'esplora': ('https://esplora.hemis.org/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'blockchair.com': ('https://blockchair.com/hemis/',
-                        {'tx': 'transaction/', 'addr': 'address/'}),
     'system default': ('blockchain://00000ac5927c594d49cc0bdb81759d0da8297eb614683d3acb62f0703b639023/',
                         {'tx': 'tx/', 'addr': 'address/'}),
 }
@@ -922,21 +914,11 @@ mainnet_block_explorers = {
 testnet_block_explorers = {
     'cryptoID.info': ('https://chainz.cryptoid.info/hms-test/',
                         {'tx': 'tx.dws?', 'addr': 'address.dws?'}),
-    'groestlsight': ('https://groestlsight-test.hemis.org/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'blockbook': ('https://blockbook-test.hemis.org/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'esplora': ('https://esplora-test.hemis.org/',
-                            {'tx': 'tx/', 'addr': 'address/'}),
     'system default': ('blockchain://000000ffbb50fc9898cdd36ec163e6ba23230164c0052a28876255b7dcf2cd36/',
                         {'tx': 'tx/', 'addr': 'address/'}),
 }
 
 signet_block_explorers = {
-    'blockbook': ('https://blockbook-signet.hemis.org/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'esplora': ('https://esplora-signet.hemis.org/',
-                            {'tx': 'tx/', 'addr': 'address/'}),
     'system default': ('blockchain:/',
                        {'tx': 'tx/', 'addr': 'address/'}),
 }

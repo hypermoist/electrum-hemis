@@ -174,7 +174,7 @@ class SettingsDialog(QDialog, QtEventListener):
         # units
         units = base_units_list
         msg = (_('Base unit of your wallet.')
-               + '\n1 HMS = 1000 mHMS. 1 mHMS = 1000 groestl. 1 groestl = 100 gro.\n'
+               + '\n1 HMS = 1000 mHMS. 1 mHMS = 1000 sats. 1 sats = 100 sat.\n'
                + _('This setting affects the Send tab, and all balance related fields.'))
         unit_label = HelpLabel(_('Base unit') + ':', msg)
         unit_combo = QComboBox()

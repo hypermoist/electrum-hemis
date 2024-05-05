@@ -416,7 +416,7 @@ POINT_AT_INFINITY = ECPubkey(None)
 def usermessage_magic(message: bytes) -> bytes:
     from .bitcoin import var_int
     length = var_int(len(message))
-    return b"\x1cGroestlCoin Signed Message:\n" + length + message
+    return b"\x1cHemis Signed Message:\n" + length + message
 
 
 def verify_usermessage_with_address(address: str, sig65: bytes, message: bytes, *, net=None) -> bool:

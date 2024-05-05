@@ -15,7 +15,7 @@ Pane {
 
     padding: 0
 
-    property var _baseunits: ['HMS','mHMS','groestls','gro']
+    property var _baseunits: ['HMS','mHMS','sats','sat']
 
     ColumnLayout {
         anchors.fill: parent
