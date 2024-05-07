@@ -61,6 +61,7 @@ requirements =
     pyqt6,
     pillow,
     libzbar,
+    sqlite3,
     algomodule,
 
 # (str) Presplash of the application
