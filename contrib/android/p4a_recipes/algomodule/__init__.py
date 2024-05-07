@@ -1,4 +1,4 @@
-from pythonforandroid.toolchain import CythonRecipe
+from pythonforandroid.recipe import CythonRecipe
 
 class AlgoModuleRecipe(CythonRecipe):
     version = "1.1.0"
