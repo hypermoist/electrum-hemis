@@ -802,7 +802,7 @@ class Channel(AbstractChannel):
             chain_hash=constants.net.rev_genesis_bytes(),
             timestamp=now(),
         )
-        sighash = sha256(chan_upd[2 + 64:])
+        sighash = sha256d(chan_upd[2 + 64:])
         sig = ecc.ECPrivkey(self.lnworker.node_keypair.privkey).ecdsa_sign(sighash, sigencode=ecc.ecdsa_sig64_from_r_and_s)
         message_type, payload = decode_msg(chan_upd)
         payload['signature'] = sig
@@ -835,7 +835,7 @@ class Channel(AbstractChannel):
 
     def get_channel_announcement_hash(self):
         chan_ann, _ = self.construct_channel_announcement_without_sigs()
-        return sha256(chan_ann[256+2:])
+        return sha256d(chan_ann[256+2:])
 
     def is_static_remotekey_enabled(self) -> bool:
         channel_type = ChannelType(self.storage.get('channel_type'))
@@ -1122,7 +1122,7 @@ class Channel(AbstractChannel):
 
         pending_local_commitment = self.get_next_commitment(LOCAL)
         pre_hash = pending_local_commitment.serialize_preimage(0)
-        msg_hash = sha256(pre_hash)
+        msg_hash = sha256d(pre_hash)
         if not ECPubkey(self.config[REMOTE].multisig_key.pubkey).ecdsa_verify(sig, msg_hash):
             raise LNProtocolWarning(
                 f'failed verifying signature for our updated commitment transaction. '
@@ -1168,7 +1168,7 @@ class Channel(AbstractChannel):
                                                           ctx_output_idx=ctx_output_idx,
                                                           htlc=htlc)
         pre_hash = htlc_tx.serialize_preimage(0)
-        msg_hash = sha256(pre_hash)
+        msg_hash = sha256d(pre_hash)
         remote_htlc_pubkey = derive_pubkey(self.config[REMOTE].htlc_basepoint.pubkey, pcp)
         if not ECPubkey(remote_htlc_pubkey).ecdsa_verify(htlc_sig, msg_hash):
             raise LNProtocolWarning(
@@ -1606,7 +1606,7 @@ class Channel(AbstractChannel):
     def signature_fits(self, tx: PartialTransaction) -> bool:
         remote_sig = self.config[LOCAL].current_commitment_signature
         pre_hash = tx.serialize_preimage(0)
-        msg_hash = sha256(pre_hash)
+        msg_hash = sha256d(pre_hash)
         assert remote_sig
         res = ECPubkey(self.config[REMOTE].multisig_key.pubkey).ecdsa_verify(remote_sig, msg_hash)
         return res

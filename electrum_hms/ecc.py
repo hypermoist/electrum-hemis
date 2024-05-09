@@ -423,7 +423,7 @@ def verify_usermessage_with_address(address: str, sig65: bytes, message: bytes, 
     from .bitcoin import pubkey_to_address
     assert_bytes(sig65, message)
     if net is None: net = constants.net
-    h = sha256(usermessage_magic(message))
+    h = sha256d(usermessage_magic(message))
     try:
         public_key, compressed, txin_type_guess = ECPubkey.from_ecdsa_sig65(sig65, h)
     except Exception as e:
@@ -580,7 +580,7 @@ class ECPrivkey(ECPubkey):
 
     def ecdsa_sign_usermessage(self, message: Union[bytes, str], *, is_compressed: bool) -> bytes:
         message = to_bytes(message, 'utf8')
-        msg32 = sha256(usermessage_magic(message))
+        msg32 = sha256d(usermessage_magic(message))
         return self.ecdsa_sign_recoverable(msg32, is_compressed=is_compressed)
 
     def decrypt_message(self, encrypted: Union[str, bytes], *, magic: bytes=b'BIE1') -> bytes:

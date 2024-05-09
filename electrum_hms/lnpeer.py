@@ -1452,7 +1452,7 @@ class Peer(Logger):
             alias=alias,
             addrlen=len(addresses),
             addresses=addresses)
-        h = sha256(raw_msg[64+2:])
+        h = sha256d(raw_msg[64+2:])
         signature = ecc.ECPrivkey(self.privkey).ecdsa_sign(h, sigencode=ecdsa_sig64_from_r_and_s)
         message_type, payload = decode_msg(raw_msg)
         payload['signature'] = signature
@@ -2449,7 +2449,7 @@ class Peer(Logger):
         def verify_signature(tx: 'PartialTransaction', sig) -> bool:
             their_pubkey = chan.config[REMOTE].multisig_key.pubkey
             pre_hash = tx.serialize_preimage(0)
-            msg_hash = sha256(pre_hash)
+            msg_hash = sha256d(pre_hash)
             return ECPubkey(their_pubkey).ecdsa_verify(sig, msg_hash)
 
         async def receive_closing_signed():
