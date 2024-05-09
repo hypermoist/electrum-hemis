@@ -49,7 +49,7 @@ from .bitcoin import (TYPE_ADDRESS, TYPE_SCRIPT, hash_160,
                       var_int, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC, COIN,
                       opcodes, base_decode,
                       base_encode, construct_witness, construct_script)
-from .crypto import sha256
+from .crypto import sha256d
 from .logging import get_logger
 from .util import ShortID, OldTaskGroup
 from .bitcoin import DummyAddress
@@ -903,11 +903,11 @@ class Transaction:
     def _calc_bip143_shared_txdigest_fields(self) -> BIP143SharedTxDigestFields:
         inputs = self.inputs()
         outputs = self.outputs()
-        hashPrevouts = sha256(b''.join(txin.prevout.serialize_to_network() for txin in inputs))
-        hashSequence = sha256(b''.join(
+        hashPrevouts = sha256d(b''.join(txin.prevout.serialize_to_network() for txin in inputs))
+        hashSequence = sha256d(b''.join(
             int.to_bytes(txin.nsequence, length=4, byteorder="little", signed=False)
             for txin in inputs))
-        hashOutputs = sha256(b''.join(o.serialize_to_network() for o in outputs))
+        hashOutputs = sha256d(b''.join(o.serialize_to_network() for o in outputs))
         return BIP143SharedTxDigestFields(hashPrevouts=hashPrevouts,
                                           hashSequence=hashSequence,
                                           hashOutputs=hashOutputs)
@@ -986,7 +986,7 @@ class Transaction:
             except UnknownTxinType:
                 # we might not know how to construct scriptSig for some scripts
                 return None
-            self._cached_txid = sha256(bfh(ser))[::-1].hex()
+            self._cached_txid = sha256d(bfh(ser))[::-1].hex()
         return self._cached_txid
 
     def wtxid(self) -> Optional[str]:
@@ -998,7 +998,7 @@ class Transaction:
         except UnknownTxinType:
             # we might not know how to construct scriptSig/witness for some scripts
             return None
-        return sha256(bfh(ser))[::-1].hex()
+        return sha256d(bfh(ser))[::-1].hex()
 
     def add_info_from_wallet(self, wallet: 'Abstract_Wallet', **kwargs) -> None:
         # populate prev_txs
@@ -1118,7 +1118,7 @@ class Transaction:
 
     @classmethod
     def satperbyte_from_satperkw(cls, feerate_kw):
-        """Converts feerate from sat/kw to gro/vbyte."""
+        """Converts feerate from sat/kw to sat/vbyte."""
         return feerate_kw * 4 / 1000
 
     def estimated_total_size(self):
@@ -2112,7 +2112,7 @@ class PartialTransaction(Transaction):
             if (sighash & 0x1f) != Sighash.SINGLE and (sighash & 0x1f) != Sighash.NONE:
                 hashOutputs = bip143_shared_txdigest_fields.hashOutputs
             elif (sighash & 0x1f) == Sighash.SINGLE and txin_index < len(outputs):
-                hashOutputs = sha256(outputs[txin_index].serialize_to_network())
+                hashOutputs = sha256d(outputs[txin_index].serialize_to_network())
             else:
                 hashOutputs = bytes(32)
             outpoint = txin.prevout.serialize_to_network()
@@ -2158,7 +2158,7 @@ class PartialTransaction(Transaction):
         txin.validate_data(for_signing=True)
         sighash = txin.sighash if txin.sighash is not None else Sighash.ALL
         pre_hash = self.serialize_preimage(txin_index, bip143_shared_txdigest_fields=bip143_shared_txdigest_fields)
-        msg_hash = sha256(pre_hash)
+        msg_hash = sha256d(pre_hash)
         privkey = ecc.ECPrivkey(privkey_bytes)
         sig = privkey.ecdsa_sign(msg_hash, sigencode=ecc.ecdsa_der_sig_from_r_and_s)
         sig = sig + Sighash.to_sigbytes(sighash)
@@ -2213,7 +2213,7 @@ class PartialTransaction(Transaction):
                 continue
             if sig in list(txin.part_sigs.values()):
                 continue
-            msg_hash = sha256(self.serialize_preimage(i))
+            msg_hash = sha256d(self.serialize_preimage(i))
             sig64 = ecc.ecdsa_sig64_from_der_sig(sig[:-1])
             for recid in range(4):
                 try:
