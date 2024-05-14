@@ -51,3 +51,4 @@ electrum_hemis/*.so.*
 electrum_hemis/*.dll
 electrum_hemis/*.dylib
 contrib/osx/*.dylib
+electrum-hemis.jks
