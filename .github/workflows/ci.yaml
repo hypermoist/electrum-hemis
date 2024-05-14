@@ -1,4 +1,4 @@
-name: CI
+name: Electrum Build
 
 on: [push, pull_request]
 
