@@ -106,6 +106,10 @@ class Ledger_Client(HardwareClientBase):
     def has_usable_connection_with_device(self):
         try:
             self.dongleObject.getFirmwareVersion()
+        except BTChipException as e:
+            if e.sw === 0x6700:
+                return True
+            return False
         except BaseException:
             return False
         return True
