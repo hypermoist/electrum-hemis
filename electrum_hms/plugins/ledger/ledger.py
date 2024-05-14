@@ -107,7 +107,7 @@ class Ledger_Client(HardwareClientBase):
         try:
             self.dongleObject.getFirmwareVersion()
         except BTChipException as e:
-            if e.sw === 0x6700:
+            if e.sw == 0x6700:
                 return True
             return False
         except BaseException:
