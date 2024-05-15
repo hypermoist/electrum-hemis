@@ -198,15 +198,6 @@ class Ledger_Client(HardwareClientBase):
             if not checkFirmware(firmwareInfo):
                 self.close()
                 raise UserFacingException(MSG_NEEDS_FW_UPDATE_GENERIC)
-            try:
-                self.dongleObject.getOperationMode()
-            except BTChipException as e:
-                if (e.sw == 0x6985):
-                    self.close()
-                    self.handler.get_setup()
-                    # Acquire the new client on the next run
-                else:
-                    raise e
             if self.has_detached_pin_support(self.dongleObject) and not self.is_pin_validated(self.dongleObject):
                 assert self.handler, "no handler for client"
                 remaining_attempts = self.dongleObject.getVerifyPinRemainingAttempts()
