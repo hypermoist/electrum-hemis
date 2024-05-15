@@ -107,7 +107,7 @@ class Ledger_Client(HardwareClientBase):
         try:
             self.dongleObject.getFirmwareVersion()
         except BTChipException as e:
-            if e.sw == 0x6702:
+            if e.sw == 0x6700:
                 # When Ledger is in the app selection menu, getting the firmware version results
                 # in 0x6700 being returned. Getting an error code back means we can actually
                 # communicate with the device, so we return True here.
@@ -235,7 +235,7 @@ class Ledger_Client(HardwareClientBase):
             try:
                 self.perform_hw1_preflight()
             except BTChipException as e:
-                if (e.sw == 0x6d00 or e.sw == 0x6700):
+                if (e.sw == 0x6d00):
                     raise UserFacingException(_("Device not in Hemis mode")) from e
                 raise e
             self.preflightDone = True
