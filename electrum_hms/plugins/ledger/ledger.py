@@ -106,10 +106,6 @@ class Ledger_Client(HardwareClientBase):
     def has_usable_connection_with_device(self):
         try:
             self.dongleObject.getFirmwareVersion()
-        except BTChipException as e:
-            if e.sw == 0x6702:
-                return True
-            return False
         except BaseException:
             return False
         return True
@@ -232,7 +228,7 @@ class Ledger_Client(HardwareClientBase):
             try:
                 self.perform_hw1_preflight()
             except BTChipException as e:
-                if (e.sw == 0x6d00 or e.sw == 0x6702):
+                if (e.sw == 0x6d00 or e.sw == 0x6700):
                     raise UserFacingException(_("Device not in Hemis mode")) from e
                 raise e
             self.preflightDone = True
@@ -603,14 +599,14 @@ class LedgerPlugin(HW_PluginBase):
                    (0x2581, 0x3b7c), # HW.1 ledger production
                    (0x2581, 0x4b7c), # HW.1 ledger test
                    (0x2c97, 0x0000), # Blue
+                   (0x2c97, 0x0011), # Blue app-bitcoin >= 1.5.1
+                   (0x2c97, 0x0015), # Blue app-bitcoin >= 1.5.1
                    (0x2c97, 0x0001), # Nano-S
+                   (0x2c97, 0x1011), # Nano-S app-bitcoin >= 1.5.1
+                   (0x2c97, 0x1015), # Nano-S app-bitcoin >= 1.5.1
                    (0x2c97, 0x0004), # Nano-X
-                   (0x2c97, 0x0005), # Nano-S Plus
-                   (0x2c97, 0x0006), # Stax
-                   (0x2c97, 0x0007), # RFU
-                   (0x2c97, 0x0008), # RFU
-                   (0x2c97, 0x0009), # RFU
-                   (0x2c97, 0x000a)  # RFU
+                   (0x2c97, 0x4011), # Nano-X app-bitcoin >= 1.5.1
+                   (0x2c97, 0x4015), # Nano-X app-bitcoin >= 1.5.1
                  ]
     VENDOR_IDS = (0x2c97,)
     LEDGER_MODEL_IDS = {
