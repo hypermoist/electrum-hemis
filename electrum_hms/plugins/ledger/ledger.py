@@ -610,6 +610,7 @@ class LedgerPlugin(HW_PluginBase):
                    (0x2c97, 0x0005), # Nano-S-Plus
                    (0x2c97, 0x5011), # Nano-S-Plus app-bitcoin >= 1.5.1
                    (0x2c97, 0x5015), # Nano-S-Plus app-bitcoin >= 1.5.1
+                ]
     VENDOR_IDS = (0x2c97,)
     LEDGER_MODEL_IDS = {
         0x10: "Ledger Nano S",
