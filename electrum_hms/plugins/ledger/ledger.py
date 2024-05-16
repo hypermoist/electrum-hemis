@@ -198,18 +198,18 @@ class Ledger_Client(HardwareClientBase):
             if not checkFirmware(firmwareInfo):
                 self.close()
                 raise UserFacingException(MSG_NEEDS_FW_UPDATE_GENERIC)
-            if self.has_detached_pin_support(self.dongleObject) and not self.is_pin_validated(self.dongleObject):
-                assert self.handler, "no handler for client"
-                remaining_attempts = self.dongleObject.getVerifyPinRemainingAttempts()
-                if remaining_attempts != 1:
-                    msg = "Enter your Ledger PIN - remaining attempts : " + str(remaining_attempts)
-                else:
-                    msg = "Enter your Ledger PIN - WARNING : LAST ATTEMPT. If the PIN is not correct, the dongle will be wiped."
-                confirmed, p, pin = self.password_dialog(msg)
-                if not confirmed:
-                    raise UserFacingException(_('Aborted by user - please unplug the dongle and plug it again before retrying'))
-                pin = pin.encode()
-                self.dongleObject.verifyPin(pin)
+            # if self.has_detached_pin_support(self.dongleObject) and not self.is_pin_validated(self.dongleObject):
+            #     assert self.handler, "no handler for client"
+            #     remaining_attempts = self.dongleObject.getVerifyPinRemainingAttempts()
+            #     if remaining_attempts != 1:
+            #         msg = "Enter your Ledger PIN - remaining attempts : " + str(remaining_attempts)
+            #     else:
+            #         msg = "Enter your Ledger PIN - WARNING : LAST ATTEMPT. If the PIN is not correct, the dongle will be wiped."
+            #     confirmed, p, pin = self.password_dialog(msg)
+            #     if not confirmed:
+            #         raise UserFacingException(_('Aborted by user - please unplug the dongle and plug it again before retrying'))
+            #     pin = pin.encode()
+            #     self.dongleObject.verifyPin(pin)
         except BTChipException as e:
             if (e.sw == 0x6faa):
                 raise UserFacingException(_('Dongle is temporarily locked - please unplug it and replug it again'))
