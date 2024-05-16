@@ -478,7 +478,6 @@ class Ledger_KeyStore(Hardware_KeyStore):
             if segwitTransaction:
                 client_ledger.startUntrustedTransaction(True, inputIndex,
                                                             chipInputs, redeemScripts[inputIndex], version=tx.version)
-                print(chipInputs)
                 # we don't set meaningful outputAddress, amount and fees
                 # as we only care about the alternateEncoding==True branch
                 outputData = client_ledger.finalizeInput(b'', 0, 0, changePath, bfh(rawTx))
@@ -510,6 +509,7 @@ class Ledger_KeyStore(Hardware_KeyStore):
                                               + f" (phase2, {inputIndex}/{len(inputs)})")
                     client_ledger.startUntrustedTransaction(firstTransaction, inputIndex,
                                                                 chipInputs, redeemScripts[inputIndex], version=tx.version)
+                    print(chipInputs)                    
                     # we don't set meaningful outputAddress, amount and fees
                     # as we only care about the alternateEncoding==True branch
                     outputData = client_ledger.finalizeInput(b'', 0, 0, changePath, bfh(rawTx))
