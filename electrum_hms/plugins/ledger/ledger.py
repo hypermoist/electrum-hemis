@@ -163,15 +163,8 @@ class Ledger_Client(HardwareClientBase):
             raise e
 
     def is_pin_validated(self, client: 'btchip'):
-        try:
-            # Invalid SET OPERATION MODE to verify the PIN status
-            client.dongle.exchange(bytearray([0xe0, 0x26, 0x00, 0x00, 0x01, 0xAB]))
-        except BTChipException as e:
-            if (e.sw == 0x6982):
-                return False
-            if (e.sw == 0x6A80):
-                return True
-            raise e
+            pass
+
 
     def supports_multi_output(self):
         return self.multiOutputSupported
