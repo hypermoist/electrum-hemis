@@ -163,9 +163,9 @@ class Ledger_Client(HardwareClientBase):
             raise e
 
     def is_pin_validated(self, client: 'btchip'):
-            pass
-
-
+        return True
+    
+    
     def supports_multi_output(self):
         return self.multiOutputSupported
 
