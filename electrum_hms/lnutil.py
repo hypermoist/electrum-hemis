@@ -115,29 +115,29 @@ class ChannelConfig(StoredObject):
             if not (len(key.pubkey) == 33 and ecc.ECPubkey.is_pubkey_bytes(key.pubkey)):
                 raise Exception(f"{conf_name}. invalid pubkey in channel config")
         if funding_sat < MIN_FUNDING_SAT:
-            raise Exception(f"funding_sat too low: {funding_sat} gro < {MIN_FUNDING_SAT}")
+            raise Exception(f"funding_sat too low: {funding_sat} sat < {MIN_FUNDING_SAT}")
         if not peer_features.supports(LnFeatures.OPTION_SUPPORT_LARGE_CHANNEL_OPT):
             # MUST set funding_satoshis to less than 2^24 satoshi
             if funding_sat > LN_MAX_FUNDING_SAT_LEGACY:
-                raise Exception(f"funding_sat too high: {funding_sat} gro > {LN_MAX_FUNDING_SAT_LEGACY} (legacy limit)")
+                raise Exception(f"funding_sat too high: {funding_sat} sat > {LN_MAX_FUNDING_SAT_LEGACY} (legacy limit)")
         if funding_sat > config.LIGHTNING_MAX_FUNDING_SAT:
-            raise Exception(f"funding_sat too high: {funding_sat} gro > {config.LIGHTNING_MAX_FUNDING_SAT} (config setting)")
+            raise Exception(f"funding_sat too high: {funding_sat} sat > {config.LIGHTNING_MAX_FUNDING_SAT} (config setting)")
         # MUST set push_msat to equal or less than 1000 * funding_satoshis
         if not (0 <= self.initial_msat <= 1000 * funding_sat):
             raise Exception(f"{conf_name}. insane initial_msat={self.initial_msat}. (funding_sat={funding_sat})")
         if self.reserve_sat < self.dust_limit_sat:
             raise Exception(f"{conf_name}. MUST set channel_reserve_satoshis greater than or equal to dust_limit_satoshis")
         if self.dust_limit_sat < bitcoin.DUST_LIMIT_UNKNOWN_SEGWIT:
-            raise Exception(f"{conf_name}. dust limit too low: {self.dust_limit_sat} gro")
+            raise Exception(f"{conf_name}. dust limit too low: {self.dust_limit_sat} sat")
         if self.dust_limit_sat > DUST_LIMIT_MAX:
-            raise Exception(f"{conf_name}. dust limit too high: {self.dust_limit_sat} gro")
+            raise Exception(f"{conf_name}. dust limit too high: {self.dust_limit_sat} sat")
         if self.reserve_sat > funding_sat // 100:
             raise Exception(f"{conf_name}. reserve too high: {self.reserve_sat}, funding_sat: {funding_sat}")
         if self.htlc_minimum_msat > 1_000:
-            raise Exception(f"{conf_name}. htlc_minimum_msat too high: {self.htlc_minimum_msat} mgro")
+            raise Exception(f"{conf_name}. htlc_minimum_msat too high: {self.htlc_minimum_msat} msat")
         HTLC_MINIMUM_MSAT_MIN = 0  # should be at least 1 really, but apparently some nodes are sending zero...
         if self.htlc_minimum_msat < HTLC_MINIMUM_MSAT_MIN:
-            raise Exception(f"{conf_name}. htlc_minimum_msat too low: {self.htlc_minimum_msat} mgro < {HTLC_MINIMUM_MSAT_MIN}")
+            raise Exception(f"{conf_name}. htlc_minimum_msat too low: {self.htlc_minimum_msat} msat < {HTLC_MINIMUM_MSAT_MIN}")
         if self.max_accepted_htlcs < 5:
             raise Exception(f"{conf_name}. max_accepted_htlcs too low: {self.max_accepted_htlcs}")
         if self.max_accepted_htlcs > 483:
