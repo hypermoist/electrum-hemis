@@ -1493,7 +1493,7 @@ class Channel(AbstractChannel):
         if self.constraints.is_initiator != from_us:
             raise Exception(f"Cannot update_fee: wrong initiator. us: {from_us}")
         if feerate < FEERATE_PER_KW_MIN_RELAY_LIGHTNING:
-            raise Exception(f"Cannot update_fee: feerate lower than min relay fee. {feerate} gro/kw. us: {from_us}")
+            raise Exception(f"Cannot update_fee: feerate lower than min relay fee. {feerate} sat/kw. us: {from_us}")
         sender = LOCAL if from_us else REMOTE
         ctx_owner = -sender
         ctn = self.get_next_ctn(ctx_owner)

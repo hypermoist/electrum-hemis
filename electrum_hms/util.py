@@ -793,8 +793,8 @@ def format_satoshis(
 
 FEERATE_PRECISION = 1  # num fractional decimal places for sat/byte fee rates
 _feerate_quanta = Decimal(10) ** (-FEERATE_PRECISION)
-UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE = "gro/vbyte"
-UI_UNIT_NAME_FEERATE_SAT_PER_VB = "gro/vB"
+UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE = "sat/vbyte"
+UI_UNIT_NAME_FEERATE_SAT_PER_VB = "sat/vB"
 UI_UNIT_NAME_TXSIZE_VBYTES = "vbytes"
 UI_UNIT_NAME_MEMPOOL_MB = "vMB"
 
@@ -807,7 +807,7 @@ def format_fee_satoshis(fee, *, num_zeros=0, precision=None):
 
 
 def quantize_feerate(fee) -> Union[None, Decimal, int]:
-    """Strip gro/byte fee rate of excess precision."""
+    """Strip sat/byte fee rate of excess precision."""
     if fee is None:
         return None
     return Decimal(fee).quantize(_feerate_quanta, rounding=decimal.ROUND_HALF_DOWN)

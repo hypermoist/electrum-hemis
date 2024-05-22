@@ -197,7 +197,7 @@ class ChannelConfig(StoredObject):
                 "transaction are less than or equal to channel_reserve_satoshis")
         from .simple_config import FEERATE_PER_KW_MIN_RELAY_LIGHTNING
         if initial_feerate_per_kw < FEERATE_PER_KW_MIN_RELAY_LIGHTNING:
-            raise Exception(f"feerate lower than min relay fee. {initial_feerate_per_kw} gro/kw.")
+            raise Exception(f"feerate lower than min relay fee. {initial_feerate_per_kw} sat/kw.")
 
 
 @stored_as('local_config')
@@ -446,7 +446,7 @@ CHANNEL_OPENING_TIMEOUT = 24*60*60
 # Small capacity channels are problematic for many reasons. As the onchain fees start to become
 # significant compared to the capacity, things start to break down. e.g. the counterparty
 # force-closing the channel costs much of the funds in the channel.
-# Closing a channel uses ~200 vbytes onchain, feerates could spike to 100 gro/vbyte or even higher;
+# Closing a channel uses ~200 vbytes onchain, feerates could spike to 100 sat/vbyte or even higher;
 # that in itself is already 20_000 sats. This mining fee is reserved and cannot be used for payments.
 # The value below is chosen arbitrarily to be one order of magnitude higher than that.
 MIN_FUNDING_SAT = 200_000

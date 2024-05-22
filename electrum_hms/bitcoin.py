@@ -335,7 +335,7 @@ def construct_script(items: Sequence[Union[str, int, bytes, opcodes]], values=No
 
 
 def relayfee(network: 'Network' = None) -> int:
-    """Returns feerate in gro/kbyte."""
+    """Returns feerate in sat/kbyte."""
     from .simple_config import FEERATE_DEFAULT_RELAY, FEERATE_MAX_RELAY
     if network and network.relay_fee is not None:
         fee = network.relay_fee
@@ -357,7 +357,7 @@ DUST_LIMIT_P2WPKH = 294
 
 
 def dust_threshold(network: 'Network' = None) -> int:
-    """Returns the dust limit in gros."""
+    """Returns the dust limit in sats."""
     # Change <= dust threshold is added to the tx fee
     dust_lim = 182 * 3 * relayfee(network)  # in msat
     # convert to sat, but round up:

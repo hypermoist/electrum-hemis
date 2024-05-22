@@ -1072,7 +1072,7 @@ class Commands:
 
     @command('')
     async def getfeerate(self):
-        """Return current fee rate settings and current estimate (in gro/kvByte).
+        """Return current fee rate settings and current estimate (in sat/kvByte).
         """
         method, value, feerate, tooltip = self.config.getfeerate()
         return {

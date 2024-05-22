@@ -27,7 +27,7 @@ FEE_DEPTH_TARGETS = [10_000_000, 5_000_000, 2_000_000, 1_000_000,
 FEE_LN_ETA_TARGET = 2       # note: make sure the network is asking for estimates for this target
 FEE_LN_LOW_ETA_TARGET = 25  # note: make sure the network is asking for estimates for this target
 
-# gro per kbyte
+# sat per kbyte
 FEERATE_MAX_DYNAMIC = 1500000
 FEERATE_WARNING_HIGH_FEE = 600000
 FEERATE_FALLBACK_STATIC_FEE = 50000
@@ -493,7 +493,7 @@ class SimpleConfig(Logger):
         return get_fee_within_limits
 
     def eta_to_fee(self, slider_pos) -> Optional[int]:
-        """Returns fee in gro/kbyte."""
+        """Returns fee in sat/kbyte."""
         slider_pos = max(slider_pos, 0)
         slider_pos = min(slider_pos, len(FEE_ETA_TARGETS))
         if slider_pos < len(FEE_ETA_TARGETS):
@@ -505,7 +505,7 @@ class SimpleConfig(Logger):
 
     @impose_hard_limits_on_fee
     def eta_target_to_fee(self, num_blocks: int) -> Optional[int]:
-        """Returns fee in gro/kbyte."""
+        """Returns fee in sat/kbyte."""
         if num_blocks == 1:
             fee = self.fee_estimates.get(2)
             if fee is not None:
@@ -518,7 +518,7 @@ class SimpleConfig(Logger):
         return fee
 
     def fee_to_depth(self, target_fee: Real) -> Optional[int]:
-        """For a given gro/vbyte fee, returns an estimate of how deep
+        """For a given sat/vbyte fee, returns an estimate of how deep
         it would be in the current mempool in vbytes.
         Pessimistic == overestimates the depth.
         """
@@ -532,13 +532,13 @@ class SimpleConfig(Logger):
         return depth
 
     def depth_to_fee(self, slider_pos) -> Optional[int]:
-        """Returns fee in gro/kbyte."""
+        """Returns fee in sat/kbyte."""
         target = self.depth_target(slider_pos)
         return self.depth_target_to_fee(target)
 
     @impose_hard_limits_on_fee
     def depth_target_to_fee(self, target: int) -> Optional[int]:
-        """Returns fee in gro/kbyte.
+        """Returns fee in sat/kbyte.
         target: desired mempool depth in vbytes
         """
         if self.mempool_fees is None:
@@ -631,7 +631,7 @@ class SimpleConfig(Logger):
         text is what we target: static fee / num blocks to confirm in / mempool depth
         tooltip is the corresponding estimate (e.g. num blocks for a static fee)
 
-        fee_rate is in gro/kbyte
+        fee_rate is in sat/kbyte
         """
         if fee_per_kb is None:
             rate_str = 'unknown'
@@ -728,7 +728,7 @@ class SimpleConfig(Logger):
         return fee_rate
 
     def fee_per_kb(self, dyn: bool=None, mempool: bool=None, fee_level: float=None) -> Optional[int]:
-        """Returns gro/kvB fee to pay for a txn.
+        """Returns sat/kvB fee to pay for a txn.
         Note: might return None.
 
         fee_level: float between 0.0 and 1.0, representing fee slider position
@@ -799,7 +799,7 @@ class SimpleConfig(Logger):
             raise Exception(f"Invalid parameter: {fee_method}. Valid methods are: ETA, mempool, static.")
 
     def fee_per_byte(self):
-        """Returns gro/vB fee to pay for a txn.
+        """Returns sat/vB fee to pay for a txn.
         Note: might return None.
         """
         fee_per_kb = self.fee_per_kb()
@@ -875,7 +875,7 @@ class SimpleConfig(Logger):
         return self.format_amount(*args, **kwargs) + ' ' + self.get_base_unit()
 
     def format_fee_rate(self, fee_rate) -> str:
-        """fee_rate is in gro/kvByte."""
+        """fee_rate is in sat/kvByte."""
         return format_fee_satoshis(fee_rate/1000, num_zeros=self.num_zeros) + f" {util.UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE}"
 
     def get_base_unit(self):
@@ -1135,7 +1135,7 @@ This will result in longer routes; it might increase your fees and decrease the 
     )
 
     BLOCK_EXPLORER = ConfigVar(
-        'block_explorer', default='Blockstream.info', type_=str,
+        'block_explorer', default='explorer.hemis.tech', type_=str,
         short_desc=lambda: _('Online Block Explorer'),
         long_desc=lambda: _('Choose which online block explorer to use for functions that open a web browser'),
     )
