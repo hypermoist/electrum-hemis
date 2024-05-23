@@ -121,7 +121,7 @@ jobs:
         env:
            ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
         run: |
-          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}/keystore"
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/electrumhms.keystore
           sudo mkdir --parents /.buildozer/.gradle
