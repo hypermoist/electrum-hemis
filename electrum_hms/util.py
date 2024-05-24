@@ -89,7 +89,7 @@ ca_path = certifi.where()
 
 base_units = {'HMS':8, 'mHMS':5, 'sats':2, 'sat':0}
 base_units_inverse = inv_dict(base_units)
-base_units_list = ['HMS', 'mHMS', 'stats', 'sat']  # list(dict) does not guarantee order
+base_units_list = ['HMS', 'mHMS', 'sats', 'sat']  # list(dict) does not guarantee order
 
 DECIMAL_POINT_DEFAULT = 8  # HMS
 
