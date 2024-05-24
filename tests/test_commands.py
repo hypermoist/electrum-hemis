@@ -33,18 +33,18 @@ class TestCommands(ElectrumTestCase):
         self.assertEqual(True, Commands._setconfig_normalize_value('show_console_tab', "True"))
 
     def test_setconfig_non_auth_list(self):
-        self.assertEqual(['file:///var/www/', 'https://hemis.org'],
-            Commands._setconfig_normalize_value('url_rewrite', "['file:///var/www/','https://hemis.org']"))
-        self.assertEqual(['file:///var/www/', 'https://hemis.org'],
-            Commands._setconfig_normalize_value('url_rewrite', '["file:///var/www/","https://hemis.org"]'))
+        self.assertEqual(['file:///var/www/', 'https://hemis.tech'],
+            Commands._setconfig_normalize_value('url_rewrite', "['file:///var/www/','https://hemis.tech']"))
+        self.assertEqual(['file:///var/www/', 'https://hemis.tech'],
+            Commands._setconfig_normalize_value('url_rewrite', '["file:///var/www/","https://hemis.tech"]'))
 
     def test_setconfig_auth(self):
         self.assertEqual("7777", Commands._setconfig_normalize_value('rpcuser', "7777"))
         self.assertEqual("7777", Commands._setconfig_normalize_value('rpcuser', '7777'))
         self.assertEqual("7777", Commands._setconfig_normalize_value('rpcpassword', '7777'))
         self.assertEqual("2asd", Commands._setconfig_normalize_value('rpcpassword', '2asd'))
-        self.assertEqual("['file:///var/www/','https://hemis.org']",
-            Commands._setconfig_normalize_value('rpcpassword', "['file:///var/www/','https://hemis.org']"))
+        self.assertEqual("['file:///var/www/','https://hemis.tech']",
+            Commands._setconfig_normalize_value('rpcpassword', "['file:///var/www/','https://hemis.tech']"))
 
     def test_eval_bool(self):
         self.assertFalse(eval_bool("False"))

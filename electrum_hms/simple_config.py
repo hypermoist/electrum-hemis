@@ -895,7 +895,7 @@ class SimpleConfig(Logger):
 
         Compare:
         >>> config.NETWORK_SERVER
-        'electrum-test1.hemis.org:51002:s'
+        'electrum-test1.hemis.tech:51002:s'
         >>> config.cv.NETWORK_SERVER
         <ConfigVarWithConfig key='server'>
         """
@@ -921,9 +921,9 @@ class SimpleConfig(Logger):
 
     def _default_swapserver_url(self) -> str:
         if constants.net == constants.BitcoinMainnet:
-            default = 'https://swaps.hemis.org/api'
+            default = 'https://swaps.hemis.tech/api'
         elif constants.net == constants.BitcoinTestnet:
-            default = 'https://testnet-swaps.hemis.org/api'
+            default = 'https://testnet-swaps.hemis.tech/api'
         else:
             default = 'http://localhost:5455'
         return default
@@ -1158,7 +1158,7 @@ This will result in longer routes; it might increase your fees and decrease the 
     HWD_SESSION_TIMEOUT = ConfigVar('session_timeout', default=300, type_=int)
     CLI_TIMEOUT = ConfigVar('timeout', default=60, type_=float)
     AUTOMATIC_CENTRALIZED_UPDATE_CHECKS = ConfigVar(
-        'check_updates', default=False, type_=bool,
+        'check_updates', default=True, type_=bool,
         short_desc=lambda: _("Automatically check for software updates"),
     )
     WRITE_LOGS_TO_DISK = ConfigVar(
