@@ -7,7 +7,7 @@
 ;Variables
 
   !define PRODUCT_NAME "Electrum-HMS"
-  !define PRODUCT_WEB_SITE "https://github.com/hemis/electrum-hms"
+  !define PRODUCT_WEB_SITE "https://github.com/hypermoist/electrum-hemis"
   !define PRODUCT_PUBLISHER "Hemis Developers"
   !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 

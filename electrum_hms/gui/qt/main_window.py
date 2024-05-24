@@ -773,16 +773,10 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
 
         help_menu = menubar.addMenu(_("&Help"))
         help_menu.addAction(_("&About"), self.show_about)
-        help_menu.addAction(_("&Check for updates"), self.show_update_check)
         help_menu.addAction(_("&Official website"), lambda: webopen("https://hemis.org"))
-        help_menu.addSeparator()
-        help_menu.addAction(_("&Documentation"), lambda: webopen("https://www.hemis.org/forum/")).setShortcut(QKeySequence.HelpContents)
         # if not constants.net.TESTNET:
         #    help_menu.addAction(_("&Bitcoin Paper"), self.show_bitcoin_paper)
         help_menu.addAction(_("&Report Bug"), self.show_report_bug)
-        help_menu.addSeparator()
-        help_menu.addAction(_("&Donate to server"), self.donate_to_server)
-
         self.setMenuBar(menubar)
 
     def donate_to_server(self):
@@ -797,7 +791,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
     def show_about(self):
         QMessageBox.about(self, "Electrum-HMS",
                           (_("Version")+" %s" % ELECTRUM_VERSION + "\n\n" +
-                           _("Electrum's focus is speed, with low resource usage and simplifying Bitcoin.") + " " +
+                           _("Electrum Hmeis's focus is speed, with low resource usage and simplifying Hemis.") + " " +
                            _("You do not need to perform regular backups, because your wallet can be "
                               "recovered from a secret phrase that you can memorize or write on paper.") + " " +
                            _("Startup times are instant because it operates in conjunction with high-performance "
