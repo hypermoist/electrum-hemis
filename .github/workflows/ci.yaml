@@ -44,9 +44,9 @@ jobs:
           name: ${{ github.event.inputs.release-name }}
           tag_name: ${{ github.event.inputs.tags }}
           files: |
-            /home/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-portable.exe
-            /home/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-setup.exe
-            /home/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4.exe
+            /home/runner/work/electrum-hemis/electrum-hemis/contrib/build-wine/dist/electrum-hms-4.5.4-portable.exe
+            /home/runner/work/electrum-hemis/electrum-hemis/contrib/build-wine/dist/electrum-hms-4.5.4-setup.exe
+            /home/runner/work/electrum-hemis/electrum-hemis/contrib/build-wine/dist/electrum-hms-4.5.4.exe
 
   appimage:
     runs-on: ubuntu-latest
