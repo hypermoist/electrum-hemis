@@ -38,6 +38,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: electrum-hms-${{ github.sha }}-windows
+      - name: Upload Release Windows
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files: |
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-portable.exe
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-setup.exe
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4.exe
 
   appimage:
     runs-on: ubuntu-latest
@@ -62,7 +71,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: electrum-hms-${{ github.sha }}-appimage
-
+      - name: Upload Release AppImage
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-x86_64.AppImage
   tarball:
     runs-on: ubuntu-latest
     steps:
@@ -82,6 +97,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: electrum-hms-${{ github.sha }}-tarball
+      - name: Upload Release Tarball
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/Electrum-hms-4.5.4.tar.gz
 
   source-only-tarball:
     runs-on: ubuntu-latest
@@ -102,7 +124,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: electrum-hms-${{ github.sha }}-source-only-tarball
-
+      - name: Upload Release Source Only Tarball
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/Electrum-hms-sourceonly-4.5.4.tar.gz
 #  android-qml-arm64-v8a:
 #    runs-on: ubuntu-latest
 #    steps:
@@ -256,13 +284,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: electrum-hms-${{ github.sha }}-macos
-      - name: Upload Releases
+      - name: Upload Release Mac
         uses: softprops/action-gh-release@v2.0.5
         with:
           name: ${{ github.event.inputs.release-name }}
           tag_name: ${{ github.event.inputs.tags }}
-          files: |
-            electrum-hms-${{ github.sha }}-macos
-            electrum-hms-${{ github.sha }}-source-only-tarball
-            electrum-hms-${{ github.sha }}-appimage
-            electrum-hms-${{ github.sha }}-windows
+          files:
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-unsigned.dmg
