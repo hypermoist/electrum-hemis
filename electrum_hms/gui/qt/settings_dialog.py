@@ -111,65 +111,6 @@ class SettingsDialog(QDialog, QtEventListener):
                 self.app.update_status_signal.emit()
         nz.valueChanged.connect(on_nz)
 
-        # lightning
-        trampoline_cb = checkbox_from_configvar(self.config.cv.LIGHTNING_USE_GOSSIP)
-        trampoline_cb.setChecked(not self.config.LIGHTNING_USE_GOSSIP)
-        def on_trampoline_checked(use_trampoline):
-            use_trampoline = bool(use_trampoline)
-            if not use_trampoline:
-                if not window.question('\n'.join([
-                        _("Are you sure you want to disable trampoline?"),
-                        _("Without this option, Electrum will need to sync with the Lightning network on every start."),
-                        _("This may impact the reliability of your payments."),
-                ])):
-                    trampoline_cb.setCheckState(Qt.Checked)
-                    return
-            self.config.LIGHTNING_USE_GOSSIP = not use_trampoline
-            if not use_trampoline:
-                self.network.start_gossip()
-            else:
-                self.network.run_from_another_thread(
-                    self.network.stop_gossip())
-            util.trigger_callback('ln_gossip_sync_progress')
-            # FIXME: update all wallet windows
-            util.trigger_callback('channels_updated', self.wallet)
-        trampoline_cb.stateChanged.connect(on_trampoline_checked)
-
-        legacy_add_trampoline_cb = checkbox_from_configvar(self.config.cv.LIGHTNING_LEGACY_ADD_TRAMPOLINE)
-        legacy_add_trampoline_cb.setChecked(self.config.LIGHTNING_LEGACY_ADD_TRAMPOLINE)
-        def on_legacy_add_trampoline_checked(b):
-            self.config.LIGHTNING_LEGACY_ADD_TRAMPOLINE = bool(b)
-        legacy_add_trampoline_cb.stateChanged.connect(on_legacy_add_trampoline_checked)
-
-        remote_wt_cb = checkbox_from_configvar(self.config.cv.WATCHTOWER_CLIENT_ENABLED)
-        remote_wt_cb.setChecked(self.config.WATCHTOWER_CLIENT_ENABLED)
-        def on_remote_wt_checked(x):
-            self.config.WATCHTOWER_CLIENT_ENABLED = bool(x)
-            self.watchtower_url_e.setEnabled(bool(x))
-        remote_wt_cb.stateChanged.connect(on_remote_wt_checked)
-        watchtower_url = self.config.WATCHTOWER_CLIENT_URL
-        self.watchtower_url_e = QLineEdit(watchtower_url)
-        self.watchtower_url_e.setEnabled(self.config.WATCHTOWER_CLIENT_ENABLED)
-        def on_wt_url():
-            url = self.watchtower_url_e.text() or None
-            self.config.WATCHTOWER_CLIENT_URL = url
-        self.watchtower_url_e.editingFinished.connect(on_wt_url)
-
-        alias_label = HelpLabel.from_configvar(self.config.cv.OPENALIAS_ID)
-        alias = self.config.OPENALIAS_ID
-        self.alias_e = QLineEdit(alias)
-        self.set_alias_color()
-        self.alias_e.editingFinished.connect(self.on_alias_edit)
-
-        msat_cb = checkbox_from_configvar(self.config.cv.BTC_AMOUNTS_PREC_POST_SAT)
-        msat_cb.setChecked(self.config.BTC_AMOUNTS_PREC_POST_SAT > 0)
-        def on_msat_checked(v):
-            prec = 3 if v == Qt.Checked else 0
-            if self.config.amt_precision_post_satoshi != prec:
-                self.config.amt_precision_post_satoshi = prec
-                self.config.BTC_AMOUNTS_PREC_POST_SAT = prec
-                self.app.refresh_tabs_signal.emit()
-        msat_cb.stateChanged.connect(on_msat_checked)
 
         # units
         units = base_units_list
@@ -345,7 +286,6 @@ class SettingsDialog(QDialog, QtEventListener):
         units_widgets = []
         units_widgets.append((unit_label, unit_combo))
         units_widgets.append((nz_label, nz))
-        units_widgets.append((msat_cb, None))
         units_widgets.append((thousandsep_cb, None))
         fiat_widgets = []
         fiat_widgets.append((QLabel(_('Fiat currency')), ccy_combo))
@@ -354,7 +294,6 @@ class SettingsDialog(QDialog, QtEventListener):
         misc_widgets = []
         misc_widgets.append((updatecheck_cb, None))
         misc_widgets.append((filelogging_cb, None))
-        misc_widgets.append((alias_label, self.alias_e))
         misc_widgets.append((qr_label, qr_combo))
 
         tabs_info = [
