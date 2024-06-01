@@ -977,7 +977,7 @@ class SimpleConfig(Logger):
         long_desc=lambda: _('This may result in large QR codes'),
     )
     WALLET_BOLT11_FALLBACK = ConfigVar(
-        'bolt11_fallback', default=True, type_=bool,
+        'bolt11_fallback', default=False, type_=bool,
         short_desc=lambda: _('Add on-chain fallback to lightning requests'),
     )
     WALLET_PAYREQ_EXPIRY_SECONDS = ConfigVar('request_expiry', default=invoices.PR_DEFAULT_EXPIRATION_WHEN_CREATING, type_=int)
@@ -1015,7 +1015,7 @@ class SimpleConfig(Logger):
 Downloading the network gossip uses quite some bandwidth and storage, and is not recommended on mobile devices. If you use trampoline, you can only open channels with trampoline nodes."""),
     )
     LIGHTNING_USE_RECOVERABLE_CHANNELS = ConfigVar(
-        'use_recoverable_channels', default=True, type_=bool,
+        'use_recoverable_channels', default=False, type_=bool,
         short_desc=lambda: _("Create recoverable channels"),
         long_desc=lambda: _("""Add extra data to your channel funding transactions, so that a static backup can be recovered from your seed.
 
@@ -1113,7 +1113,7 @@ This will result in longer routes; it might increase your fees and decrease the 
     GUI_QT_SHOW_TAB_CONSOLE = ConfigVar('show_console_tab', default=False, type_=bool)
     GUI_QT_SHOW_TAB_NOTES = ConfigVar('show_notes_tab', default=False, type_=bool)
 
-    GUI_QML_PREFERRED_REQUEST_TYPE = ConfigVar('preferred_request_type', default='bolt11', type_=str)
+    GUI_QML_PREFERRED_REQUEST_TYPE = ConfigVar('preferred_request_type', default='standard', type_=str)
     GUI_QML_USER_KNOWS_PRESS_AND_HOLD = ConfigVar('user_knows_press_and_hold', default=False, type_=bool)
     GUI_QML_ADDRESS_LIST_SHOW_TYPE = ConfigVar('address_list_show_type', default=1, type_=int)
     GUI_QML_ADDRESS_LIST_SHOW_USED = ConfigVar('address_list_show_used', default=False, type_=bool)

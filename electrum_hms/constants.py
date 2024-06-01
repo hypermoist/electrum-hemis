@@ -41,8 +41,8 @@ def read_json(filename, default):
     return r
 
 
-GIT_REPO_URL = "https://github.com/hypermoist/electrum-hemis"
-GIT_REPO_ISSUES_URL = "https://github.com/hypermoist/electrum-hemis/issues"
+GIT_REPO_URL = "https://github.com/Hemis-Blockchain/electrum-hemis"
+GIT_REPO_ISSUES_URL = "https://github.com/Hemis-Blockchain/electrum-hemis/issues"
 BIP39_WALLET_FORMATS = read_json('bip39_wallet_formats.json', [])
 
 

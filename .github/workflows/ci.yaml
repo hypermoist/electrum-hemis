@@ -1,6 +1,14 @@
-name: CI
+name: Electrum-HMS Builds
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Set tag for release'
+        required: true
+      release-name:
+          description: 'Specify a name for release'
+          required: true
 
 jobs:
   windows:
@@ -19,17 +27,15 @@ jobs:
         env:
           TARGET_OS: Windows
         run: docker run --name electrum-hms-wine-builder-cont -v $PWD:/opt/wine64/drive_c/electrum-hms --rm --workdir /opt/wine64/drive_c/electrum-hms/contrib/build-wine electrum-hms-wine-builder-img ./make_win.sh
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Release Windows
+        uses: softprops/action-gh-release@v2.0.5
         with:
-          name: electrum-hms-${{ github.sha }}-windows
-          path: contrib/build-wine/dist/*.exe
-          if-no-files-found: error
-          retention-days: 7
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: electrum-hms-${{ github.sha }}-windows
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files: |
+            /home/runner/work/electrum-hemis/electrum-hemis/contrib/build-wine/dist/electrum-hms-4.5.4-portable.exe
+            /home/runner/work/electrum-hemis/electrum-hemis/contrib/build-wine/dist/electrum-hms-4.5.4-setup.exe
+            /home/runner/work/electrum-hemis/electrum-hemis/contrib/build-wine/dist/electrum-hms-4.5.4.exe
 
   appimage:
     runs-on: ubuntu-latest
@@ -43,18 +49,13 @@ jobs:
         run: docker build -t electrum-hms-appimage-builder-img ./contrib/build-linux/appimage/
       - name: Compile Linux AppImage
         run: docker run --name electrum-hms-appimage-builder-cont -v $PWD:/opt/electrum-hms --rm --workdir /opt/electrum-hms/contrib/build-linux/appimage electrum-hms-appimage-builder-img ./make_appimage.sh
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Release AppImage
+        uses: softprops/action-gh-release@v2.0.5
         with:
-          name: electrum-hms-${{ github.sha }}-appimage
-          path: dist/*.AppImage
-          if-no-files-found: error
-          retention-days: 7
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: electrum-hms-${{ github.sha }}-appimage
-
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /home/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-x86_64.AppImage
   tarball:
     runs-on: ubuntu-latest
     steps:
@@ -63,17 +64,13 @@ jobs:
         run: docker build -t electrum-hms-sdist-builder-img ./contrib/build-linux/sdist/
       - name: Compile Linux tarball
         run: docker run --name electrum-hms-sdist-builder-cont -v $PWD:/opt/electrum-hms --rm --workdir /opt/electrum-hms/contrib/build-linux/sdist electrum-hms-sdist-builder-img ./make_sdist.sh
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Release Tarball
+        uses: softprops/action-gh-release@v2.0.5
         with:
-          name: electrum-hms-${{ github.sha }}-tarball
-          path: dist/*.tar.gz
-          if-no-files-found: error
-          retention-days: 7
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: electrum-hms-${{ github.sha }}-tarball
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /home/runner/work/electrum-hemis/electrum-hemis/dist/Electrum-hms-4.5.4.tar.gz
 
   source-only-tarball:
     runs-on: ubuntu-latest
@@ -83,17 +80,13 @@ jobs:
         run: docker build -t electrum-hms-source-only-tarball-builder-img ./contrib/build-linux/sdist/
       - name: Compile Linux tarball
         run: docker run --name electrum-hms-source-only-tarball-builder-cont -v $PWD:/opt/electrum-hms --rm --workdir /opt/electrum-hms/contrib/build-linux/sdist --env OMIT_UNCLEAN_FILES=1 electrum-hms-source-only-tarball-builder-img ./make_sdist.sh
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Release Source Only Tarball
+        uses: softprops/action-gh-release@v2.0.5
         with:
-          name: electrum-hms-${{ github.sha }}-source-only-tarball
-          path: dist/*.tar.gz
-          if-no-files-found: error
-          retention-days: 7
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: electrum-hms-${{ github.sha }}-source-only-tarball
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /home/runner/work/electrum-hemis/electrum-hemis/dist/Electrum-hms-sourceonly-4.5.4.tar.gz
 
 #  android-qml-arm64-v8a:
 #    runs-on: ubuntu-latest
@@ -139,7 +132,7 @@ jobs:
 #          name: electrum-hms-${{ github.sha }}-android-arm64-v8a
 #
 #  android-qml-armeabi-v7a:
-#    runs-on: ubuntu-latest
+#    runs-on: ubuntu-latest 
 #    steps:
 #      - uses: actions/checkout@v4
 #      - name: Free Disk Space (Ubuntu)
@@ -237,14 +230,10 @@ jobs:
           xcode-version: 12.4.0
       - name: Compile OSX dmg
         run: ./contrib/osx/make_osx.sh
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Release Mac
+        uses: softprops/action-gh-release@v2.0.5
         with:
-          name: electrum-hms-${{ github.sha }}-macos
-          path: dist/*.dmg
-          if-no-files-found: error
-          retention-days: 7
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: electrum-hms-${{ github.sha }}-macos
+          name: ${{ github.event.inputs.release-name }}
+          tag_name: ${{ github.event.inputs.tags }}
+          files:
+            /Users/runner/work/electrum-hemis/electrum-hemis/dist/electrum-hms-4.5.4-unsigned.dmg
