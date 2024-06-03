@@ -163,13 +163,12 @@ Pane {
                 }
 
                 Heading {
-                    visble: false
                     Layout.columnSpan: 2
+                    visible: false
                     text: qsTr('Lightning')
                 }
 
                 Label {
-                    visible: false
                     text: (Config.useGossip ? qsTr('Gossip') : qsTr('Trampoline')) + ':'
                     color: Material.accentColor
                 }
