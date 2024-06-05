@@ -43,7 +43,7 @@ Item {
 
         // Android based send dialog if on android
         var scanner = app.scanDialog.createObject(mainView, {
-            hint: qsTr('Scan an Invoice'),
+            hint: qsTr('Scan an Invoice, an Address'),
         })
         scanner.onFound.connect(function() {
             var data = scanner.scanData
