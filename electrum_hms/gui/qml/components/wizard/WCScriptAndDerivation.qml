@@ -117,7 +117,7 @@ WizardComponent {
                 ButtonGroup.group: scripttypegroup
                 property string scripttype: 'p2wpkh-p2sh'
                 text: qsTr('wrapped segwit (p2wpkh-p2sh)')
-                visible: !isMultisig
+                visible: false
             }
             ElRadioButton {
                 Layout.fillWidth: true
@@ -125,7 +125,7 @@ WizardComponent {
                 property string scripttype: 'p2wpkh'
                 checked: !isMultisig
                 text: qsTr('native segwit (p2wpkh)')
-                visible: !isMultisig
+                visible: false
             }
 
             // multisig
@@ -143,7 +143,7 @@ WizardComponent {
                 ButtonGroup.group: scripttypegroup
                 property string scripttype: 'p2wsh-p2sh'
                 text: qsTr('p2sh-segwit multisig (p2wsh-p2sh)')
-                visible: isMultisig
+                visible: false
                 enabled: !cosigner || wizard_data['script_type'] == 'p2wsh-p2sh'
                 checked: cosigner ? wizard_data['script_type'] == 'p2wsh-p2sh' : false
             }
@@ -152,7 +152,7 @@ WizardComponent {
                 ButtonGroup.group: scripttypegroup
                 property string scripttype: 'p2wsh'
                 text: qsTr('native segwit multisig (p2wsh)')
-                visible: isMultisig
+                visible: false
                 enabled: !cosigner || wizard_data['script_type'] == 'p2wsh'
                 checked: cosigner ? wizard_data['script_type'] == 'p2wsh' : isMultisig
             }

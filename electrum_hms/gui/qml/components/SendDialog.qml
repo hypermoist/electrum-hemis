@@ -56,7 +56,7 @@ ElDialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            hint: qsTr('Scan an Invoice, an Address')
+            hint: qsTr('Scan an Invoice or Address')
             onFound: dialog.dispatch(scanData)
         }
 
