@@ -36,7 +36,7 @@ from electrum_hms import ecc, constants, keystore, version, bip32, bitcoin
 from electrum_hms.bip32 import BIP32Node, xpub_type
 from electrum_hms.crypto import sha256
 from electrum_hms.transaction import PartialTxOutput, PartialTxInput, PartialTransaction, Transaction
-from electrum_hms.mnemonic import Mnemonic, seed_type, is_any_2fa_seed_type
+from electrum_hms.mnemonic import Mnemonic, calc_seed_type, is_any_2fa_seed_type
 from electrum_hms.wallet import Multisig_Wallet, Deterministic_Wallet
 from electrum_hms.i18n import _
 from electrum_hms.plugin import BasePlugin, hook
@@ -556,7 +556,7 @@ class TrustedCoinPlugin(BasePlugin):
 
     @classmethod
     def xkeys_from_seed(self, seed, passphrase):
-        t = seed_type(seed)
+        t = calc_seed_type(seed)
         if not is_any_2fa_seed_type(t):
             raise Exception(f'unexpected seed type: {t!r}')
         words = seed.split()
