@@ -12,7 +12,7 @@ from electrum_hms.util import WalletFileException, standardize_path, InvalidPass
 from electrum_hms.plugin import run_hook
 from electrum_hms.lnchannel import ChannelState
 from electrum_hms.bitcoin import is_address
-from electrum_hms.ecc import verify_usermessage_with_address
+from electrum_hms.bitcoin import verify_usermessage_with_address
 from electrum_hms.storage import StorageReadWriteError
 
 from .auth import AuthMixin, auth_protect
