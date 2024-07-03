@@ -18,12 +18,11 @@ import copy
 from typing import TYPE_CHECKING, Optional
 
 from electrum_hms.crypto import sha256d, EncodeAES_bytes, DecodeAES_bytes, hmac_oneshot
-from electrum_hms.bitcoin import public_key_to_p2pkh
+from electrum_hms.bitcoin import public_key_to_p2pkh, usermessage_magic
 from electrum_hms.bip32 import BIP32Node, convert_bip32_intpath_to_strpath, is_all_public_derivation
 from electrum_hms.bip32 import normalize_bip32_derivation
 from electrum_hms import descriptor
 from electrum_hms import ecc
-from electrum_hms.ecc import usermessage_magic
 from electrum_hms.wallet import Standard_Wallet
 from electrum_hms import constants
 from electrum_hms.transaction import Transaction, PartialTransaction, PartialTxInput, Sighash
