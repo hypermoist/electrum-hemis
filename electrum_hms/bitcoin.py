@@ -196,25 +196,6 @@ class opcodes(IntEnum):
     def hex(self) -> str:
         return bytes([self]).hex()
 
-def rev_hex(s: str) -> str:
-    return bfh(s)[::-1].hex()
-
-def int_to_hex(i: int, length: int=1) -> str:
-    """Converts int to little-endian hex string.
-    `length` is the number of bytes available
-    """
-    if not isinstance(i, int):
-        raise TypeError('{} instead of int'.format(i))
-    range_size = pow(256, length)
-    if i < -(range_size//2) or i >= range_size:
-        raise OverflowError('cannot convert int {} to hex ({} bytes)'.format(i, length))
-    if i < 0:
-        # two's complement
-        i = range_size + i
-    s = hex(i)[2:].rstrip('L')
-    s = "0"*(2*length - len(s)) + s
-    return rev_hex(s)
-
 def script_num_to_bytes(i: int) -> bytes:
     """See CScriptNum in Hemis Core.
     Encodes an integer as bytes, to be used in script.
