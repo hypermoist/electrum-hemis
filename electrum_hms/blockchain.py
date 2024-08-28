@@ -29,7 +29,7 @@ import algomodule
 from typing import Optional, Dict, Mapping, Sequence, TYPE_CHECKING, Union
 
 from . import util
-from .bitcoin import hash_encode, int_to_hex, rev_hex
+from .bitcoin import hash_encode
 from .crypto import sha256d
 from . import constants
 from .util import bfh
@@ -54,7 +54,7 @@ class MissingHeader(Exception):
 class InvalidHeader(Exception):
     pass
 
-def serialize_header(header_dict: dict) -> str:
+def serialize_header(header_dict: dict) -> bytes:
     s = (
         int.to_bytes(header_dict['version'], length=4, byteorder="little", signed=False)
         + bfh(header_dict['prev_block_hash'])[::-1]
@@ -74,7 +74,6 @@ def deserialize_header(s: bytes, height: int) -> dict:
         raise InvalidHeader('Invalid header: {}'.format(s))
     if len(s) < HEADER_SIZE:
         raise InvalidHeader('Invalid header length: {}'.format(len(s)))
-
     h = {}
     h['version'] = int.from_bytes(s[0:4], byteorder='little')
     h['prev_block_hash'] = hash_encode(s[4:36])
@@ -101,7 +100,6 @@ def hash_raw_header(header: bytes) -> str:
     if header[0] > 3:
         return hash_encode(sha256d(header))
     return hash_encode(PoWHash(header))
-
 
 def PoWHash(x):
     x = util.to_bytes(x, 'utf8')

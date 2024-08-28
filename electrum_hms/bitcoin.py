@@ -196,8 +196,9 @@ class opcodes(IntEnum):
     def hex(self) -> str:
         return bytes([self]).hex()
 
+
 def script_num_to_bytes(i: int) -> bytes:
-    """See CScriptNum in Hemis Core.
+    """See CScriptNum in Bitcoin Core.
     Encodes an integer as bytes, to be used in script.
 
     ported from https://github.com/bitcoin/bitcoin/blob/8cbc5c4be4be22aca228074f087a374a7ec38be8/src/script/script.h#L326
@@ -295,7 +296,7 @@ def construct_witness(items: Sequence[Union[str, int, bytes]]) -> bytes:
 
 
 def construct_script(items: Sequence[Union[str, int, bytes, opcodes]], values=None) -> bytes:
-    """Constructs hemis script from given items."""
+    """Constructs bitcoin script from given items."""
     script = bytearray()
     values = values or {}
     for i, item in enumerate(items):

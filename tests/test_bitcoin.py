@@ -550,12 +550,12 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertFalse(is_address('bc1gmk9yu'))
 
         # base58 P2PKH
-        self.assertEqual(address_to_script('FYrKsifCJhUpBoPJc2PfPSuyXxPcEbrh5w').hex(), '76a91428662c67561b95c79d2257d2a93d9d151c977e9188ac')
-        self.assertEqual(address_to_script('FfQZ7uRS6YgXnQtn9ovUdPdutUmTgRNjXR').hex(), '76a914704f4b81cadb7bf7e68c08cd3657220f680f863c88ac')
+        self.assertEqual(address_to_script('14gcRovpkCoGkCNBivQBvw7eso7eiNAbxG').hex(), '76a91428662c67561b95c79d2257d2a93d9d151c977e9188ac')
+        self.assertEqual(address_to_script('1BEqfzh4Y3zzLosfGhw1AsqbEKVW6e1qHv').hex(), '76a914704f4b81cadb7bf7e68c08cd3657220f680f863c88ac')
 
         # base58 P2SH
-        self.assertEqual(address_to_script('35ZqQJcBQMZ1rsv8aSuJ2wkC7ohUFNJZ77').hex(), 'a9142a84cf00d47f699ee7bbc1dea5ec1bdecb4ac15487')
-        self.assertEqual(address_to_script('3PyjzJ3im7f7bcV724GR57edKDqoZn2jJo').hex(), 'a914f47c8954e421031ad04ecd8e7752c9479206b9d387')
+        self.assertEqual(address_to_script('35ZqQJcBQMZ1rsv8aSuJ2wkC7ohUCQMJbT').hex(), 'a9142a84cf00d47f699ee7bbc1dea5ec1bdecb4ac15487')
+        self.assertEqual(address_to_script('3PyjzJ3im7f7bcV724GR57edKDqoZvH7Ji').hex(), 'a914f47c8954e421031ad04ecd8e7752c9479206b9d387')
 
     def test_address_to_payload(self):
         # bech32 P2WPKH
