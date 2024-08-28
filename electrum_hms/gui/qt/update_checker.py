@@ -20,8 +20,8 @@ from electrum_hms._vendor.distutils.version import StrictVersion
 
 
 class UpdateCheck(QDialog, Logger):
-    url = "https://hemis.org/version"
-    download_url = "https://www.hemis.org/hemis-electrum-wallet/"
+    url = "https://hemis.tech/version"
+    download_url = "https://www.hemis.tech/hemis-electrum-wallet/"
 
     VERSION_ANNOUNCEMENT_SIGNING_KEYS = (
         "FWN1qdiRrymSR6jbpbanLYqZpjkEaZouHN",

@@ -106,9 +106,6 @@ if TYPE_CHECKING:
     from . import ElectrumGui
 
 
-LN_NUM_PAYMENT_ATTEMPTS = 10
-
-
 class StatusBarButton(QToolButton):
     # note: this class has a custom stylesheet applied in stylesheet_patcher.py
     def __init__(self, icon, tooltip, func, sb_height):
@@ -304,7 +301,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
 
     def run_coroutine_dialog(self, coro, text, on_result, on_cancelled):
         """ run coroutine in a waiting dialog, with a Cancel button that cancels the coroutine """
-        from electrum import util
+        from electrum_hms import util
         loop = util.get_asyncio_loop()
         assert util.get_running_loop() != loop, 'must not be called from asyncio thread'
         future = asyncio.run_coroutine_threadsafe(coro, loop)
@@ -774,9 +771,9 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         help_menu = menubar.addMenu(_("&Help"))
         help_menu.addAction(_("&About"), self.show_about)
         help_menu.addAction(_("&Check for updates"), self.show_update_check)
-        help_menu.addAction(_("&Official website"), lambda: webopen("https://hemis.org"))
+        help_menu.addAction(_("&Official website"), lambda: webopen("https://hemis.tech"))
         help_menu.addSeparator()
-        help_menu.addAction(_("&Documentation"), lambda: webopen("https://www.hemis.org/forum/")).setShortcut(QKeySequence.HelpContents)
+        help_menu.addAction(_("&Documentation"), lambda: webopen("https://www.hemis.tech/forum/")).setShortcut(QKeySequence.HelpContents)
         # if not constants.net.TESTNET:
         #    help_menu.addAction(_("&Bitcoin Paper"), self.show_bitcoin_paper)
         help_menu.addAction(_("&Report Bug"), self.show_report_bug)
@@ -921,7 +918,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         return self.fx.format_amount_and_units(amount_sat) if self.fx else ''
 
     def format_fee_rate(self, fee_rate) -> str:
-        """fee_rate is in gro/kvByte."""
+        """fee_rate is in sat/kvByte."""
         return self.config.format_fee_rate(fee_rate)
 
     def get_decimal_point(self):
@@ -1861,7 +1858,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         else:
             msg = _(
                 "Warning: this wallet type does not support channel recovery from seed. "
-                "You will need to backup your wallet everytime you create a new channel. "
+                "You will need to backup your wallet every time you create a new channel. "
                 "Create lightning keys?")
         if self.question(msg):
             self._init_lightning_dialog(dialog=dialog)
@@ -1996,7 +1993,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         try:
             # This can throw on invalid base64
             sig = base64.b64decode(str(signature.toPlainText()))
-            verified = ecc.verify_usermessage_with_address(address, sig, message)
+            verified = bitcoin.verify_usermessage_with_address(address, sig, message)
         except Exception as e:
             verified = False
         if verified:
@@ -2047,8 +2044,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         if self.wallet.is_watching_only():
             self.show_message(_('This is a watching-only wallet.'))
             return
-        cyphertext = encrypted_e.toPlainText()
-        task = partial(self.wallet.decrypt_message, pubkey_e.text(), cyphertext, password)
+        ciphertext = encrypted_e.toPlainText()
+        task = partial(self.wallet.decrypt_message, pubkey_e.text(), ciphertext, password)
 
         def setText(text):
             try:
@@ -2060,6 +2057,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         self.thread.add(task, on_success=setText)
 
     def do_encrypt(self, message_e, pubkey_e, encrypted_e):
+        from electrum import crypto
         message = message_e.toPlainText()
         message = message.encode('utf-8')
         try:
@@ -2068,7 +2066,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
             self.logger.exception('Invalid Public key')
             self.show_warning(_('Invalid Public key'))
             return
-        encrypted = public_key.encrypt_message(message)
+        encrypted = crypto.ecies_encrypt_message(public_key, message)
         encrypted_e.setText(encrypted.decode('ascii'))
 
     def encrypt_message(self, address=''):

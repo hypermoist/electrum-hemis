@@ -240,6 +240,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
             return
         self._cleaned_up = True
         self.app.new_window_signal.disconnect()
+        self.app.removeEventFilter(self.efilter)
         self.efilter = None
         # If there are still some open windows, try to clean them up.
         for window in list(self.windows):
@@ -455,7 +456,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
             else:
                 xprv = db.get('x1')['xprv']
             _wiz_data_updates = {
-                'wallet_name': os.path.basename(wallet_file),
+                'wallet_name': wallet_file,
                 'xprv1': xprv,
                 'xpub1': db.get('x1')['xpub'],
                 'xpub2': db.get('x2')['xpub'],

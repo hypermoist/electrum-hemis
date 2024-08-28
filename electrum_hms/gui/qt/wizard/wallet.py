@@ -182,6 +182,7 @@ class QENewWalletWizard(NewWalletWizard, QEAbstractWizard, MessageBoxMixin):
         wallet_file = wizard_data['wallet_name']
 
         storage = WalletStorage(wallet_file)
+        assert storage.file_exists(), f"file {wallet_file!r} does not exist"
         if not storage.is_encrypted_with_user_pw() and not storage.is_encrypted_with_hw_device():
             return True
 
@@ -380,7 +381,7 @@ class WCWalletName(WalletWizardComponent, Logger):
                 pw_label.show()
                 self.pw_e.show()
                 if not self.name_e.hasFocus():
-                    self.pw_e.setFocus(True)
+                    self.pw_e.setFocus()
             else:
                 pw_label.hide()
                 self.pw_e.hide()
@@ -398,6 +399,7 @@ class WCWalletName(WalletWizardComponent, Logger):
             wallet_folder = self.wizard.config.get_datadir_wallet_path()
             self.wizard_data['wallet_name'] = os.path.join(wallet_folder, self.name_e.text())
         else:
+            # FIXME: wizard_data['wallet_name'] is sometimes a full path, sometimes a basename
             self.wizard_data['wallet_name'] = self.name_e.text()
         self.wizard_data['wallet_exists'] = self.wallet_exists
         self.wizard_data['wallet_is_open'] = self.wallet_is_open
@@ -628,7 +630,7 @@ class WCHaveSeed(WalletWizardComponent, Logger):
         self.layout().addStretch(1)
 
     def is_seed(self, x):
-        t = mnemonic.seed_type(x)
+        t = mnemonic.calc_seed_type(x)
         if self.wizard_data['wallet_type'] == 'standard':
             return mnemonic.is_seed(x) and not mnemonic.is_any_2fa_seed_type(t)
         elif self.wizard_data['wallet_type'] == '2fa':
@@ -663,7 +665,7 @@ class WCHaveSeed(WalletWizardComponent, Logger):
         cosigner_data['seed'] = self.slayout.get_seed()
         cosigner_data['seed_variant'] = self.slayout.seed_type
         if self.slayout.seed_type == 'electrum':
-            cosigner_data['seed_type'] = mnemonic.seed_type(self.slayout.get_seed())
+            cosigner_data['seed_type'] = mnemonic.calc_seed_type(self.slayout.get_seed())
         else:
             cosigner_data['seed_type'] = self.slayout.seed_type
         cosigner_data['seed_extend'] = self.slayout.is_ext if self.can_passphrase else False

@@ -1389,6 +1389,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
                         'value': Satoshis(0),
                         'children': [],
                         'timestamp': 0,
+                        'date': timestamp_to_datetime(0),
                         'fee_sat': 0,
                     }
                     transactions[key] = parent
@@ -1403,6 +1404,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
                     parent['lightning'] = False
                     parent['txid'] = tx_item['txid']
                     parent['timestamp'] = tx_item['timestamp']
+                    parent['date'] = timestamp_to_datetime(tx_item['timestamp'])
                     parent['height'] = tx_item['height']
                     parent['confirmations'] = tx_item['confirmations']
                 parent['children'].append(tx_item)
@@ -1643,7 +1645,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
         with self.lock:
             return copy.copy(self._labels)
 
-    def get_tx_status(self, tx_hash, tx_mined_info: TxMinedInfo):
+    def get_tx_status(self, tx_hash: str, tx_mined_info: TxMinedInfo):
         extra = []
         height = tx_mined_info.height
         conf = tx_mined_info.conf
@@ -1656,6 +1658,8 @@ class Abstract_Wallet(ABC, Logger, EventListener):
             tx = self.db.get_transaction(tx_hash)
             if not tx:
                 return 2, _("unknown")
+            if not tx.is_complete():
+                tx.add_info_from_wallet(self)  # needed for estimated_size(), for txin size calc
             fee = self.adb.get_tx_fee(tx_hash)
             if fee is not None:
                 size = tx.estimated_size()
@@ -1809,8 +1813,8 @@ class Abstract_Wallet(ABC, Logger, EventListener):
             outputs: List[PartialTxOutput],
             fee=None,
             change_addr: str = None,
-            is_sweep=False,
-            rbf=True,
+            is_sweep: bool = False,  # used by Wallet_2fa subclass
+            rbf: bool = True,
             batch_rbf: Optional[bool] = None,
             send_change_to_lightning: Optional[bool] = None,
     ) -> PartialTransaction:
@@ -2066,7 +2070,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
             strategy: BumpFeeStrategy = BumpFeeStrategy.PRESERVE_PAYMENT,
     ) -> PartialTransaction:
         """Increase the miner fee of 'tx'.
-        'new_fee_rate' is the target min rate in gro/vbyte
+        'new_fee_rate' is the target min rate in sat/vbyte
         'coins' is a list of UTXOs we can choose from as potential new inputs to be added
 
         note: it is the caller's responsibility to have already called tx.add_info_from_network().
@@ -2086,7 +2090,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
         old_tx_size = tx.estimated_size()
         old_fee = tx.get_fee()
         assert old_fee is not None
-        old_fee_rate = old_fee / old_tx_size  # gro/vbyte
+        old_fee_rate = old_fee / old_tx_size  # sat/vbyte
         if new_fee_rate <= old_fee_rate:
             raise CannotBumpFee(_("The new fee rate needs to be higher than the old fee rate."))
 
@@ -2331,7 +2335,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
     ) -> PartialTransaction:
         """Double-Spend-Cancel: cancel an unconfirmed tx by double-spending
         its inputs, paying ourselves.
-        'new_fee_rate' is the target min rate in gro/vbyte
+        'new_fee_rate' is the target min rate in sat/vbyte
 
         note: it is the caller's responsibility to have already called tx.add_info_from_network().
               Without that, all txins must be ismine.
@@ -2351,7 +2355,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
         old_tx_size = tx.estimated_size()
         old_fee = tx.get_fee()
         assert old_fee is not None
-        old_fee_rate = old_fee / old_tx_size  # gro/vbyte
+        old_fee_rate = old_fee / old_tx_size  # sat/vbyte
         if new_fee_rate <= old_fee_rate:
             raise CannotDoubleSpendTx(_("The new fee rate needs to be higher than the old fee rate."))
         # grab all ismine inputs
@@ -3272,8 +3276,7 @@ class Abstract_Wallet(ABC, Logger, EventListener):
 
     def unlock(self, password):
         self.logger.info(f'unlocking wallet')
-        if self.has_password():
-            self.check_password(password)
+        self.check_password(password)
         self._password_in_memory = password
 
     def get_unlocked_password(self):

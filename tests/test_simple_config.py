@@ -150,17 +150,17 @@ class Test_SimpleConfig(ElectrumTestCase):
 
     def test_configvars_get_default_value_complex_fn(self):
         config = SimpleConfig(self.options)
-        self.assertEqual("https://swaps.hemis.org/api", config.SWAPSERVER_URL)
+        self.assertEqual("https://swaps.hemis.tech/api", config.SWAPSERVER_URL)
 
         config.SWAPSERVER_URL = "http://localhost:9999"
         self.assertEqual("http://localhost:9999", config.SWAPSERVER_URL)
 
         config.SWAPSERVER_URL = None
-        self.assertEqual("https://swaps.hemis.org/api", config.SWAPSERVER_URL)
+        self.assertEqual("https://swaps.hemis.tech/api", config.SWAPSERVER_URL)
 
         constants.set_testnet()
         try:
-            self.assertEqual("https://testnet-swaps.hemis.org/api", config.SWAPSERVER_URL)
+            self.assertEqual("https://testnet-swaps.hemis.tech/api", config.SWAPSERVER_URL)
         finally:
             constants.set_mainnet()
 

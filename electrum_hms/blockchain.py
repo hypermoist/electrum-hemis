@@ -29,7 +29,7 @@ import algomodule
 from typing import Optional, Dict, Mapping, Sequence, TYPE_CHECKING, Union
 
 from . import util
-from .bitcoin import hash_encode, int_to_hex, rev_hex
+from .bitcoin import hash_encode
 from .crypto import sha256d
 from . import constants
 from .util import bfh
@@ -54,16 +54,18 @@ class MissingHeader(Exception):
 class InvalidHeader(Exception):
     pass
 
-def serialize_header(header_dict: dict) -> str:
-    s = int_to_hex(header_dict['version'], 4) \
-        + rev_hex(header_dict['prev_block_hash']) \
-        + rev_hex(header_dict['merkle_root']) \
-        + int_to_hex(int(header_dict['timestamp']), 4) \
-        + int_to_hex(int(header_dict['bits']), 4) \
-        + int_to_hex(int(header_dict['nonce']), 4)
-
+def serialize_header(header_dict: dict) -> bytes:
+    s = (
+        int.to_bytes(header_dict['version'], length=4, byteorder="little", signed=False)
+        + bfh(header_dict['prev_block_hash'])[::-1]
+        + bfh(header_dict['merkle_root'])[::-1]
+        + int.to_bytes(int(header_dict['timestamp']), length=4, byteorder="little", signed=False)
+        + int.to_bytes(int(header_dict['bits']), length=4, byteorder="little", signed=False)
+        + int.to_bytes(int(header_dict['nonce']), length=4, byteorder="little", signed=False)
+    )
+   
     if header_dict['version'] > 3:
-        s += rev_hex(header_dict['accumulator_checkpoint'])        
+        s += bfh(header_dict['accumulator_checkpoint'])[::-1]
     return s
 
 
@@ -72,16 +74,14 @@ def deserialize_header(s: bytes, height: int) -> dict:
         raise InvalidHeader('Invalid header: {}'.format(s))
     if len(s) < HEADER_SIZE:
         raise InvalidHeader('Invalid header length: {}'.format(len(s)))
-
-    hex_to_int = lambda s: int.from_bytes(s, byteorder='little')
     h = {}
-    h['version'] = hex_to_int(s[0:4])
+    h['version'] = int.from_bytes(s[0:4], byteorder='little')
     h['prev_block_hash'] = hash_encode(s[4:36])
     h['merkle_root'] = hash_encode(s[36:68])
-    h['timestamp'] = hex_to_int(s[68:72])
-    h['bits'] = hex_to_int(s[72:76])
-    h['nonce'] = hex_to_int(s[76:80])
-
+    h['timestamp'] = int.from_bytes(s[68:72], byteorder='little')
+    h['bits'] = int.from_bytes(s[72:76], byteorder='little')
+    h['nonce'] = int.from_bytes(s[76:80], byteorder='little')
+    
     if h['version'] > 3:
         h['accumulator_checkpoint'] = hash_encode(s[80:112])
 
@@ -95,12 +95,11 @@ def hash_header(header: dict) -> str:
         header['prev_block_hash'] = '00'*32
     return hash_raw_header(serialize_header(header))
 
-def hash_raw_header(header: str) -> str:
-    header = bfh(header)
+def hash_raw_header(header: bytes) -> str:
+    assert isinstance(header, bytes)
     if header[0] > 3:
         return hash_encode(sha256d(header))
     return hash_encode(PoWHash(header))
-
 
 def PoWHash(x):
     x = util.to_bytes(x, 'utf8')
@@ -531,7 +530,7 @@ class Blockchain(Logger):
 
     @with_lock
     def save_header(self, header: dict) -> None:
-        data = bfh(serialize_header(header))
+        data = serialize_header(header)
         self.write(data, header.get('block_height'))
         self.swap_with_parent()
 

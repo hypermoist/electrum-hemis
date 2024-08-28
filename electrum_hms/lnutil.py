@@ -197,7 +197,7 @@ class ChannelConfig(StoredObject):
                 "transaction are less than or equal to channel_reserve_satoshis")
         from .simple_config import FEERATE_PER_KW_MIN_RELAY_LIGHTNING
         if initial_feerate_per_kw < FEERATE_PER_KW_MIN_RELAY_LIGHTNING:
-            raise Exception(f"feerate lower than min relay fee. {initial_feerate_per_kw} gro/kw.")
+            raise Exception(f"feerate lower than min relay fee. {initial_feerate_per_kw} sat/kw.")
 
 
 @stored_as('local_config')
@@ -446,7 +446,7 @@ CHANNEL_OPENING_TIMEOUT = 24*60*60
 # Small capacity channels are problematic for many reasons. As the onchain fees start to become
 # significant compared to the capacity, things start to break down. e.g. the counterparty
 # force-closing the channel costs much of the funds in the channel.
-# Closing a channel uses ~200 vbytes onchain, feerates could spike to 100 gro/vbyte or even higher;
+# Closing a channel uses ~200 vbytes onchain, feerates could spike to 100 sat/vbyte or even higher;
 # that in itself is already 20_000 sats. This mining fee is reserved and cannot be used for payments.
 # The value below is chosen arbitrarily to be one order of magnitude higher than that.
 MIN_FUNDING_SAT = 200_000
@@ -620,14 +620,14 @@ def make_htlc_tx_witness(remotehtlcsig: bytes, localhtlcsig: bytes,
     return construct_witness([0, remotehtlcsig, localhtlcsig, payment_preimage, witness_script])
 
 def make_htlc_tx_inputs(htlc_output_txid: str, htlc_output_index: int,
-                        amount_msat: int, witness_script: str) -> List[PartialTxInput]:
+                        amount_msat: int, witness_script: bytes) -> List[PartialTxInput]:
     assert type(htlc_output_txid) is str
     assert type(htlc_output_index) is int
     assert type(amount_msat) is int
-    assert type(witness_script) is str
+    assert type(witness_script) is bytes
     txin = PartialTxInput(prevout=TxOutpoint(txid=bfh(htlc_output_txid), out_idx=htlc_output_index),
                           nsequence=0)
-    txin.witness_script = bfh(witness_script)
+    txin.witness_script = witness_script
     txin.script_sig = b''
     txin._trusted_value_sats = amount_msat // 1000
     c_inputs = [txin]
@@ -826,13 +826,15 @@ def possible_output_idxs_of_htlc_in_ctx(*, chan: 'Channel', pcp: bytes, subject:
     other_revocation_pubkey = derive_blinded_pubkey(other_conf.revocation_basepoint.pubkey, pcp)
     other_htlc_pubkey = derive_pubkey(other_conf.htlc_basepoint.pubkey, pcp)
     htlc_pubkey = derive_pubkey(conf.htlc_basepoint.pubkey, pcp)
-    preimage_script = make_htlc_output_witness_script(is_received_htlc=htlc_direction == RECEIVED,
-                                                      remote_revocation_pubkey=other_revocation_pubkey,
-                                                      remote_htlc_pubkey=other_htlc_pubkey,
-                                                      local_htlc_pubkey=htlc_pubkey,
-                                                      payment_hash=payment_hash,
-                                                      cltv_abs=cltv_abs)
-    htlc_address = redeem_script_to_address('p2wsh', preimage_script)
+    witness_script = make_htlc_output_witness_script(
+        is_received_htlc=htlc_direction == RECEIVED,
+        remote_revocation_pubkey=other_revocation_pubkey,
+        remote_htlc_pubkey=other_htlc_pubkey,
+        local_htlc_pubkey=htlc_pubkey,
+        payment_hash=payment_hash,
+        cltv_abs=cltv_abs,
+    )
+    htlc_address = redeem_script_to_address('p2wsh', witness_script)
     candidates = ctx.get_output_idxs_from_address(htlc_address)
     return {output_idx for output_idx in candidates
             if ctx.outputs()[output_idx].value == htlc.amount_msat // 1000}
@@ -889,16 +891,18 @@ def make_htlc_tx_with_open_channel(*, chan: 'Channel', pcp: bytes, subject: 'HTL
         local_delayedpubkey=delayedpubkey,
         success = is_htlc_success,
         to_self_delay = other_conf.to_self_delay)
-    preimage_script = make_htlc_output_witness_script(is_received_htlc=is_htlc_success,
-                                                      remote_revocation_pubkey=other_revocation_pubkey,
-                                                      remote_htlc_pubkey=other_htlc_pubkey,
-                                                      local_htlc_pubkey=htlc_pubkey,
-                                                      payment_hash=payment_hash,
-                                                      cltv_abs=cltv_abs)
+    witness_script_in = make_htlc_output_witness_script(
+        is_received_htlc=is_htlc_success,
+        remote_revocation_pubkey=other_revocation_pubkey,
+        remote_htlc_pubkey=other_htlc_pubkey,
+        local_htlc_pubkey=htlc_pubkey,
+        payment_hash=payment_hash,
+        cltv_abs=cltv_abs,
+    )
     htlc_tx_inputs = make_htlc_tx_inputs(
         commit.txid(), ctx_output_idx,
         amount_msat=amount_msat,
-        witness_script=preimage_script.hex())
+        witness_script=witness_script_in)
     if is_htlc_success:
         cltv_abs = 0
     htlc_tx = make_htlc_tx(cltv_abs=cltv_abs, inputs=htlc_tx_inputs, output=htlc_tx_output)
@@ -1085,7 +1089,7 @@ def make_commitment_output_to_remote_address(remote_payment_pubkey: bytes) -> st
 
 def sign_and_get_sig_string(tx: PartialTransaction, local_config, remote_config):
     tx.sign({local_config.multisig_key.pubkey: local_config.multisig_key.privkey})
-    sig = tx.inputs()[0].part_sigs[local_config.multisig_key.pubkey]
+    sig = tx.inputs()[0].sigs_ecdsa[local_config.multisig_key.pubkey]
     sig_64 = ecdsa_sig64_from_der_sig(sig[:-1])
     return sig_64
 
@@ -1606,7 +1610,12 @@ def extract_nodeid(connect_contents: str) -> Tuple[bytes, Optional[str]]:
 
 
 # key derivation
-# see lnd/keychain/derivation.go
+# originally based on lnd/keychain/derivation.go
+# notes:
+# - Add a new path for each use case. Do not reuse existing paths.
+#   (to avoid having to carefully consider if reuse would be safe)
+# - Always prefer to use hardened derivation for new paths you add.
+#   (to avoid having to carefully consider if unhardened would be safe)
 class LnKeyFamily(IntEnum):
     MULTISIG = 0 | BIP32_PRIME
     REVOCATION_BASE = 1 | BIP32_PRIME
@@ -1672,9 +1681,24 @@ class PaymentFeeBudget(NamedTuple):
     #num_htlc: int
 
     @classmethod
-    def default(cls, *, invoice_amount_msat: int) -> 'PaymentFeeBudget':
-        from .lnrouter import get_default_fee_budget_msat
+    def default(cls, *, invoice_amount_msat: int, config: 'SimpleConfig') -> 'PaymentFeeBudget':
+        millionths_orig = config.LIGHTNING_PAYMENT_FEE_MAX_MILLIONTHS
+        millionths = min(max(0, millionths_orig), 250_000)  # clamp into [0, 25%]
+        cutoff_orig = config.LIGHTNING_PAYMENT_FEE_CUTOFF_MSAT
+        cutoff = min(max(0, cutoff_orig), 10_000_000)  # clamp into [0, 10k sat]
+        if millionths != millionths_orig:
+            _logger.warning(
+                f"PaymentFeeBudget. found insane fee millionths in config. "
+                f"clamped: {millionths_orig}->{millionths}")
+        if cutoff != cutoff_orig:
+            _logger.warning(
+                f"PaymentFeeBudget. found insane fee cutoff in config. "
+                f"clamped: {cutoff_orig}->{cutoff}")
+        # for small payments, fees <= constant cutoff are fine
+        # for large payments, the max fee is percentage-based
+        fee_msat = invoice_amount_msat * millionths // 1_000_000
+        fee_msat = max(fee_msat, cutoff)
         return PaymentFeeBudget(
-            fee_msat=get_default_fee_budget_msat(invoice_amount_msat=invoice_amount_msat),
+            fee_msat=fee_msat,
             cltv=NBLOCK_CLTV_DELTA_TOO_FAR_INTO_FUTURE,
         )

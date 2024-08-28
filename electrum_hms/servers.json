@@ -1,7 +1,14 @@
 {
-    "202.61.238.92": {
+    "electrumx.hypur.xyz": {
+        "pruning": "-",
+        "s": "50002",
+        "t": "50001",
+        "version": "1.4.2"
+    },
+    "hemis.electrumx.multicoin.co": {
         "pruning": "-",
         "t": "50001",
+        "s": "50002",
         "version": "1.4.2"
     }
 }

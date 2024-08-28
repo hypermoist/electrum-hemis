@@ -69,11 +69,11 @@ Pane {
                 Label {
                     text: qsTr('Server Height:');
                     color: Material.accentColor
-                    visible: Network.serverHeight != 0 && Network.serverHeight < Network.height
+                    visible: Network.serverHeight != 0 && Network.serverHeight != Network.height
                 }
                 Label {
-                    text: Network.serverHeight + " (lagging)"
-                    visible: Network.serverHeight != 0 && Network.serverHeight < Network.height
+                    text: Network.serverHeight + " " + (Network.serverHeight < Network.height ? "(lagging)" : "(syncing...)")
+                    visible: Network.serverHeight != 0 && Network.serverHeight != Network.height
                 }
                 Heading {
                     Layout.columnSpan: 2
@@ -164,15 +164,17 @@ Pane {
 
                 Heading {
                     Layout.columnSpan: 2
+                    visible: false
                     text: qsTr('Lightning')
                 }
 
                 Label {
                     text: (Config.useGossip ? qsTr('Gossip') : qsTr('Trampoline')) + ':'
                     color: Material.accentColor
+                    visible: false
                 }
                 ColumnLayout {
-                    visible: Config.useGossip
+                    visible: false
                     Label {
                         text: qsTr('%1 peers').arg(Network.gossipInfo.peers)
                     }
@@ -185,16 +187,16 @@ Pane {
                 }
                 Label {
                     text: qsTr('enabled');
-                    visible: !Config.useGossip
+                    visible: false
                 }
 
                 Label {
-                    visible: Daemon.currentWallet.isLightning
+                    visible: false
                     text: qsTr('Channel peers:');
                     color: Material.accentColor
                 }
                 Label {
-                    visible: Daemon.currentWallet.isLightning
+                    visible: false
                     text: Daemon.currentWallet.lightningNumPeers
                 }
 

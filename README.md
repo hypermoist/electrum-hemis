@@ -4,7 +4,7 @@
 Licence: MIT Licence
 Author: Hemis Developers
 Language: Python (>= 3.8)
-Homepage: https://hemis.org/
+Homepage: https://hemis.tech/
 ```
 
 [![Build Status](https://api.cirrus-ci.com/github/Hemis/electrum-hms.svg?branch=master)](https://cirrus-ci.com/github/Hemis/electrum-hms)
@@ -12,7 +12,7 @@ Homepage: https://hemis.org/
 ## Getting started
 
 _(If you've come here looking to simply run Electrum-HMS,
-[you may download it here](https://www.hemis.org/hemis-electrum-wallet/).)_
+[you may download it here](https://www.hemis.tech/hemis-electrum-wallet/).)_
 
 Electrum-HMS itself is pure Python, and so are most of the required dependencies,
 but not everything. The following sections describe how to run from source, but here

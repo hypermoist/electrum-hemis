@@ -246,15 +246,13 @@ class Commands:
         ]
 
     @command('n')
-    async def load_wallet(self, wallet_path=None, unlock=False, password=None):
+    async def load_wallet(self, wallet_path=None, password=None):
         """
         Load the wallet in memory
         """
         wallet = self.daemon.load_wallet(wallet_path, password, upgrade=True)
         if wallet is None:
             raise UserFacingException('could not load wallet')
-        if unlock:
-            wallet.unlock(password)
         run_hook('load_wallet', wallet, None)
 
     @command('n')
@@ -366,6 +364,11 @@ class Commands:
         """
         sh = bitcoin.address_to_scripthash(address)
         return await self.network.get_history_for_scripthash(sh)
+
+    @command('wp')
+    async def unlock(self, wallet: Abstract_Wallet = None, password=None):
+        """Unlock the wallet (store the password in memory)."""
+        wallet.unlock(password)
 
     @command('w')
     async def listunspent(self, wallet: Abstract_Wallet = None):
@@ -713,7 +716,7 @@ class Commands:
         """Verify a signature."""
         sig = base64.b64decode(signature)
         message = util.to_bytes(message)
-        return ecc.verify_usermessage_with_address(address, sig, message)
+        return bitcoin.verify_usermessage_with_address(address, sig, message)
 
     @command('wp')
     async def payto(self, destination, amount, fee=None, feerate=None, from_addr=None, from_coins=None, change_addr=None,
@@ -907,7 +910,7 @@ class Commands:
         except TypeError:
             raise UserFacingException(f"message must be a string-like object instead of {repr(message)}")
         public_key = ecc.ECPubkey(bfh(pubkey))
-        encrypted = public_key.encrypt_message(message)
+        encrypted = crypto.ecies_encrypt_message(public_key, message)
         return encrypted.decode('utf-8')
 
     @command('wp')
@@ -1072,7 +1075,7 @@ class Commands:
 
     @command('')
     async def getfeerate(self):
-        """Return current fee rate settings and current estimate (in gro/kvByte).
+        """Return current fee rate settings and current estimate (in sat/kvByte).
         """
         method, value, feerate, tooltip = self.config.getfeerate()
         return {
@@ -1469,7 +1472,6 @@ command_options = {
     'from_amount': (None, "Amount to convert (default: 1)"),
     'from_ccy':    (None, "Currency to convert from"),
     'to_ccy':      (None, "Currency to convert to"),
-    'unlock':      (None, "Unlock the wallet (store the password in memory)."),
     'public':      (None, 'Channel will be announced'),
 }
 
@@ -1503,10 +1505,10 @@ config_variables = {
     'addrequest': {
         'ssl_privkey': 'Path to your SSL private key, needed to sign the request.',
         'ssl_chain': 'Chain of SSL certificates, needed for signed requests. Put your certificate at the top and the root CA at the end',
-        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of hemis: URIs. Example: \"(\'file:///var/www/\',\'https://hemis.org/\')\"',
+        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of hemis: URIs. Example: \"(\'file:///var/www/\',\'https://hemis.tech/\')\"',
     },
     'listrequests':{
-        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of hemis: URIs. Example: \"(\'file:///var/www/\',\'https://hemis.org/\')\"',
+        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of hemis: URIs. Example: \"(\'file:///var/www/\',\'https://hemis.tech/\')\"',
     }
 }
 

@@ -43,7 +43,7 @@ Item {
 
         // Android based send dialog if on android
         var scanner = app.scanDialog.createObject(mainView, {
-            hint: qsTr('Scan an Invoice, an Address, an LNURL-pay, a PSBT or a Channel backup'),
+            hint: qsTr('Scan an Invoice or Address'),
         })
         scanner.onFound.connect(function() {
             var data = scanner.scanData
@@ -52,7 +52,7 @@ Item {
                 app.stack.push(Qt.resolvedUrl('TxDetails.qml'), { rawtx: data })
             } else if (Daemon.currentWallet.isValidChannelBackup(data)) {
                 var dialog = app.messageDialog.createObject(app, {
-                    title: qsTr('Import Channel backup?'),
+                    title: qsTr('Import Channel Backup?'),
                     yesno: true
                 })
                 dialog.accepted.connect(function() {
@@ -508,13 +508,21 @@ Item {
             width: parent.width
             height: parent.height
 
-            onTxFound: {
+            onTxFound: (data) => {
                 app.stack.push(Qt.resolvedUrl('TxDetails.qml'), { rawtx: data })
                 close()
             }
-            onChannelBackupFound: {
+            onChannelBackupFound: (data) => {
+                if (!Daemon.currentWallet.isLightning) {
+                    var dialog = app.messageDialog.createObject(app, {
+                        title: qsTr('Cannot import Channel Backup, Lightning not enabled.')
+                    })
+                    dialog.open()
+                    return
+                }
+
                 var dialog = app.messageDialog.createObject(app, {
-                    title: qsTr('Import Channel backup?'),
+                    title: qsTr('Import Channel Backup?'),
                     yesno: true
                 })
                 dialog.accepted.connect(function() {

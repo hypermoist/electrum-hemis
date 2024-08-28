@@ -22,6 +22,7 @@
 # SOFTWARE.
 import binascii
 import concurrent.futures
+import logging
 import os, sys, re, json
 from collections import defaultdict, OrderedDict
 from typing import (NamedTuple, Union, TYPE_CHECKING, Tuple, Optional, Callable, Any,
@@ -89,7 +90,7 @@ ca_path = certifi.where()
 
 base_units = {'HMS':8, 'mHMS':5, 'sats':2, 'sat':0}
 base_units_inverse = inv_dict(base_units)
-base_units_list = ['HMS', 'mHMS', 'stats', 'sat']  # list(dict) does not guarantee order
+base_units_list = ['HMS', 'mHMS', 'sats', 'sat']  # list(dict) does not guarantee order
 
 DECIMAL_POINT_DEFAULT = 8  # HMS
 
@@ -238,6 +239,7 @@ class Satoshis(object):
     def __new__(cls, value):
         self = super(Satoshis, cls).__new__(cls)
         # note: 'value' sometimes has msat precision
+        assert isinstance(value, (int, Decimal)), f"unexpected type for {value=!r}"
         self.value = value
         return self
 
@@ -485,6 +487,35 @@ def profiler(func=None, *, min_threshold: Union[int, float, None] = None):
             _profiler_logger.debug(f"{name} {t:,.4f} sec")
         return o
     return do_profile
+
+
+class AsyncHangDetector:
+    """Context manager that logs every `n` seconds if encapsulated context still has not exited."""
+
+    def __init__(
+        self,
+        *,
+        period_sec: int = 15,
+        message: str,
+        logger: logging.Logger = None,
+    ):
+        self.period_sec = period_sec
+        self.message = message
+        self.logger = logger or _logger
+
+    async def _monitor(self):
+        # note: this assumes that the event loop itself is not blocked
+        t0 = time.monotonic()
+        while True:
+            await asyncio.sleep(self.period_sec)
+            t1 = time.monotonic()
+            self.logger.info(f"{self.message} (after {t1 - t0:.2f} sec)")
+
+    async def __aenter__(self):
+        self.mtask = asyncio.create_task(self._monitor())
+
+    async def __aexit__(self, exc_type, exc, tb):
+        self.mtask.cancel()
 
 
 def android_ext_dir():
@@ -793,8 +824,8 @@ def format_satoshis(
 
 FEERATE_PRECISION = 1  # num fractional decimal places for sat/byte fee rates
 _feerate_quanta = Decimal(10) ** (-FEERATE_PRECISION)
-UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE = "gro/vbyte"
-UI_UNIT_NAME_FEERATE_SAT_PER_VB = "gro/vB"
+UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE = "sat/vbyte"
+UI_UNIT_NAME_FEERATE_SAT_PER_VB = "sat/vB"
 UI_UNIT_NAME_TXSIZE_VBYTES = "vbytes"
 UI_UNIT_NAME_MEMPOOL_MB = "vMB"
 
@@ -807,7 +838,7 @@ def format_fee_satoshis(fee, *, num_zeros=0, precision=None):
 
 
 def quantize_feerate(fee) -> Union[None, Decimal, int]:
-    """Strip gro/byte fee rate of excess precision."""
+    """Strip sat/byte fee rate of excess precision."""
     if fee is None:
         return None
     return Decimal(fee).quantize(_feerate_quanta, rounding=decimal.ROUND_HALF_DOWN)
@@ -1044,8 +1075,7 @@ def read_json_file(path):
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.loads(f.read())
-    #backwards compatibility for JSONDecodeError
-    except ValueError:
+    except json.JSONDecodeError:
         _logger.exception('')
         raise FileImportFailed(_("Invalid JSON code."))
     except BaseException as e:
@@ -1985,6 +2015,14 @@ class nullcontext:
         pass
 
 
+def traceback_format_exception(exc: BaseException) -> Sequence[str]:
+    """Compatibility wrapper for stdlib traceback.format_exception using python 3.10+ API."""
+    if sys.version_info[:3] >= (3, 10):
+        return traceback.format_exception(exc)
+    else:
+        return traceback.format_exception(type(exc), value=exc, tb=exc.__traceback__)
+
+
 class classproperty(property):
     """~read-only class-level @property
     from https://stackoverflow.com/a/13624858 by denis-ryzhkov
@@ -2001,14 +2039,17 @@ def get_running_loop() -> Optional[asyncio.AbstractEventLoop]:
         return None
 
 
-def error_text_str_to_safe_str(err: str) -> str:
+def error_text_str_to_safe_str(err: str, *, max_len: Optional[int] = 500) -> str:
     """Converts an untrusted error string to a sane printable ascii str.
     Never raises.
     """
-    return error_text_bytes_to_safe_str(err.encode("ascii", errors='backslashreplace'))
+    text = error_text_bytes_to_safe_str(
+        err.encode("ascii", errors='backslashreplace'),
+        max_len=None)
+    return truncate_text(text, max_len=max_len)
 
 
-def error_text_bytes_to_safe_str(err: bytes) -> str:
+def error_text_bytes_to_safe_str(err: bytes, *, max_len: Optional[int] = 500) -> str:
     """Converts an untrusted error bytes text to a sane printable ascii str.
     Never raises.
 
@@ -2021,4 +2062,12 @@ def error_text_bytes_to_safe_str(err: bytes) -> str:
     # convert to ascii, to get rid of unicode stuff
     ascii_text = err.decode("ascii", errors='backslashreplace')
     # do repr to handle ascii special chars (especially when printing/logging the str)
-    return repr(ascii_text)
+    text = repr(ascii_text)
+    return truncate_text(text, max_len=max_len)
+
+
+def truncate_text(text: str, *, max_len: Optional[int]) -> str:
+    if max_len is None or len(text) <= max_len:
+        return text
+    else:
+        return text[:max_len] + f"... (truncated. orig_len={len(text)})"

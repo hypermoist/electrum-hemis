@@ -38,7 +38,7 @@ class _BaseRBFDialog(TxEditor):
 
         self.old_fee = self.old_tx.get_fee()
         self.old_tx_size = tx.estimated_size()
-        self.old_fee_rate = old_fee_rate = self.old_fee / self.old_tx_size  # gro/vbyte
+        self.old_fee_rate = old_fee_rate = self.old_fee / self.old_tx_size  # sat/vbyte
 
         TxEditor.__init__(
             self,
