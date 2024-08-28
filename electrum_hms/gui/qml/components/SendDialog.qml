@@ -56,9 +56,7 @@ ElDialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            hint: Daemon.currentWallet.isLightning
-                ? qsTr('Scan an Invoice, an Address, an LNURL-pay, a PSBT or a Channel Backup')
-                : qsTr('Scan an Invoice, an Address, an LNURL-pay or a PSBT')
+            hint: qsTr('Scan an Invoice or Address')
             onFound: dialog.dispatch(scanData)
         }
 

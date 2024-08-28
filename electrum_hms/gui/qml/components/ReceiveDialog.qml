@@ -129,6 +129,7 @@ ElDialog {
                             }
                             TabButton {
                                 id: bolt11Button
+                                visible: false
                                 Layout.fillWidth: true
                                 Layout.preferredWidth: 1
                                 text: qsTr('Lightning')

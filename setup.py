@@ -77,6 +77,6 @@ setup(
     author="Ahmed Bodiwalaa",
     author_email="ahmedbodi@crypto-expert.com",
     license="MIT Licence",
-    url="https://hemis.org",
+    url="https://hemis.tech",
     long_description="""Lightweight Hemis Wallet""",
 )

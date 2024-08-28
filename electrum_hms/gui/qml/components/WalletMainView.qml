@@ -43,9 +43,7 @@ Item {
 
         // Android based send dialog if on android
         var scanner = app.scanDialog.createObject(mainView, {
-            hint: Daemon.currentWallet.isLightning
-                ? qsTr('Scan an Invoice, an Address, an LNURL-pay, a PSBT or a Channel Backup')
-                : qsTr('Scan an Invoice, an Address, an LNURL-pay or a PSBT')
+            hint: qsTr('Scan an Invoice or Address'),
         })
         scanner.onFound.connect(function() {
             var data = scanner.scanData

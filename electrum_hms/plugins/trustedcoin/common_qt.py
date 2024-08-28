@@ -129,7 +129,7 @@ class TrustedcoinPluginQObject(PluginQObject):
 
     @pyqtSlot()
     def createKeystore(self):
-        email = 'dummy@hemis.org'
+        email = 'dummy@hemis.tech'
 
         self.remoteKeyState = ''
         self._otpSecret = ''

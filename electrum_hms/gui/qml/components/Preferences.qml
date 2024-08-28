@@ -256,12 +256,14 @@ Pane {
                     PrefsHeading {
                         Layout.columnSpan: 2
                         text: qsTr('Lightning')
+                        visible: false
                     }
 
                     Label {
                         Layout.fillWidth: true
                         text: Config.shortDescFor('LIGHTNING_PAYMENT_FEE_MAX_MILLIONTHS')
                         wrapMode: Text.Wrap
+                        visible: false
                     }
 
                     Label {
@@ -298,6 +300,7 @@ Pane {
                         Layout.columnSpan: 2
                         Layout.fillWidth: true
                         spacing: 0
+                        visible: false
                         Switch {
                             id: useTrampolineRouting
                             onCheckedChanged: {
@@ -326,6 +329,7 @@ Pane {
                             Layout.fillWidth: true
                             text: qsTr('Trampoline routing')
                             wrapMode: Text.Wrap
+                            visible: false
                         }
                     }
 
@@ -357,6 +361,7 @@ Pane {
                             }
                         }
                         Label {
+                            visible: false
                             Layout.fillWidth: true
                             text: qsTr('Create recoverable channels')
                             wrapMode: Text.Wrap
@@ -367,6 +372,7 @@ Pane {
                         Layout.columnSpan: 2
                         Layout.fillWidth: true
                         spacing: 0
+                        visible: false
                         Switch {
                             id: useFallbackAddress
                             onCheckedChanged: {
