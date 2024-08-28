@@ -65,7 +65,7 @@ def serialize_header(header_dict: dict) -> bytes:
     )
    
     if header_dict['version'] > 3:
-        s += bfh(header_dict['accumulator_checkpoint'])
+        s += bfh(header_dict['accumulator_checkpoint'])[::-1]
     return s
 
 
