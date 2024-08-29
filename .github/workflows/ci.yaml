@@ -231,7 +231,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11.9
+          python-version: 3.9.13
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 13.1.0
