@@ -225,7 +225,7 @@ jobs:
           name: electrum-hms-${{ github.sha }}-android-x86_64
 
   macos:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
