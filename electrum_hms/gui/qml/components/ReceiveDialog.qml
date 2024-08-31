@@ -309,9 +309,8 @@ ElDialog {
         id: request
         wallet: Daemon.currentWallet
         onDetailsChanged: {
-            var req_type = Config.preferredRequestType
-            if (address && req_type == 'address') {
-                rootLayout.state = 'address'
+            var req_type = 'address'  // Default to 'address'
+            rootLayout.state = req_type
         }
         onStatusChanged: {
             if (status == RequestDetails.Paid || status == RequestDetails.Unconfirmed) {
