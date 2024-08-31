@@ -10,7 +10,7 @@ WizardComponent {
     function apply() {
         wizard_data['wallet_type'] = wallettypegroup.checkedButton.wallettype
         if (wizard_data['wallet_type'] == 'standard')
-            wizard_data['seed_type'] = 'segwit'
+            wizard_data['seed_type'] = 'old'
         else if (wizard_data['wallet_type'] == '2fa')
             wizard_data['seed_type'] = '2fa_segwit'
         // TODO: multisig
