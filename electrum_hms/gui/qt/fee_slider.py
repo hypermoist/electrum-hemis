@@ -12,21 +12,25 @@ class FeeComboBox(QComboBox):
         QComboBox.__init__(self)
         self.config = fee_slider.config
         self.fee_slider = fee_slider
-        self.addItems([_('Static'), _('ETA'), _('Mempool')])
-        self.setCurrentIndex((2 if self.config.use_mempool_fees() else 1) if self.config.is_dynfee() else 0)
-        self.currentIndexChanged.connect(self.on_fee_type)
-        self.help_msg = '\n'.join([
-            _('Static: the fee slider uses static values'),
-            _('ETA: fee rate is based on average confirmation time estimates'),
-            _('Mempool based: fee rate is targeting a depth in the memory pool')
-            ]
-        )
+        # Add only the 'Static' option to be visible
+        self.addItem(_('Static'))
+        self.setCurrentIndex(0)  # Ensure 'Static' is selected by default
+
+        # Set help message to include only Static
+        self.help_msg = _('Static: the fee slider uses static values')
+
+        # Ensure the configuration defaults to static
+        self.config.FEE_EST_USE_MEMPOOL = False
+        self.config.FEE_EST_DYNAMIC = False
+
+        # Hide other options, but keep their logic for future use
+        self.fee_types = ['Static', 'ETA', 'Mempool']
 
     def on_fee_type(self, x):
-        self.config.FEE_EST_USE_MEMPOOL = (x == 2)
-        self.config.FEE_EST_DYNAMIC = (x > 0)
+        # Always use Static
+        self.config.FEE_EST_USE_MEMPOOL = False
+        self.config.FEE_EST_DYNAMIC = False
         self.fee_slider.update()
-
 
 class FeeSlider(QSlider):
 
@@ -35,18 +39,13 @@ class FeeSlider(QSlider):
         self.config = config
         self.window = window
         self.callback = callback
-        self.dyn = False
         self.lock = threading.RLock()
         self.update()
         self.valueChanged.connect(self.moved)
         self._active = True
 
     def get_fee_rate(self, pos):
-        if self.dyn:
-            fee_rate = self.config.depth_to_fee(pos) if self.config.use_mempool_fees() else self.config.eta_to_fee(pos)
-        else:
-            fee_rate = self.config.static_fee(pos)
-        return fee_rate
+        fee_rate = self.config.static_fee(pos)
 
     def moved(self, pos):
         with self.lock:
@@ -54,15 +53,11 @@ class FeeSlider(QSlider):
             tooltip = self.get_tooltip(pos, fee_rate)
             QToolTip.showText(QCursor.pos(), tooltip, self)
             self.setToolTip(tooltip)
-            self.callback(self.dyn, pos, fee_rate)
+            self.callback(False, pos, fee_rate) # dyn is always False
 
     def get_tooltip(self, pos, fee_rate):
-        mempool = self.config.use_mempool_fees()
-        target, estimate = self.config.get_fee_text(pos, self.dyn, mempool, fee_rate)
-        if self.dyn:
-            return _('Target') + ': ' + target + '\n' + _('Current rate') + ': ' + estimate
-        else:
-            return _('Fixed rate') + ': ' + target + '\n' + _('Estimate') + ': ' + estimate
+        target, estimate = self.config.get_fee_text(pos, False, False, fee_rate)
+        return _('Fixed rate') + ': ' + target + '\n' + _('Estimate') + ': ' + estimate
 
     def get_dynfee_target(self):
         if not self.dyn:
@@ -75,9 +70,7 @@ class FeeSlider(QSlider):
 
     def update(self):
         with self.lock:
-            self.dyn = self.config.is_dynfee()
-            mempool = self.config.use_mempool_fees()
-            maxp, pos, fee_rate = self.config.get_fee_slider(self.dyn, mempool)
+            maxp, pos, fee_rate = self.config.get_fee_slider(False, False)
             self.setRange(0, maxp)
             self.setValue(pos)
             tooltip = self.get_tooltip(pos, fee_rate)
@@ -112,3 +105,6 @@ class FeeSlider(QSlider):
 
     def is_active(self):
         return self._active
+
+    def get_dynfee_target(self):
+        pass  # Placeholder function to avoid AttributeError
