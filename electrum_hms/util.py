@@ -938,8 +938,8 @@ def age(
 mainnet_block_explorers = {
     'cryptoID.info': ('https://chainz.cryptoid.info/hms/',
                         {'tx': 'tx.dws?', 'addr': 'address.dws?'}),
-    'system default': ('blockchain://00000ac5927c594d49cc0bdb81759d0da8297eb614683d3acb62f0703b639023/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
+    'system default': ('https://chainz.cryptoid.info/hms/',
+                       {'tx': 'tx.dws?', 'addr': 'address.dws?'}),
 }
 
 testnet_block_explorers = {

@@ -279,25 +279,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         gui_object.timer.timeout.connect(self.timer_actions)
         self.contacts.fetch_openalias(self.config)
 
-        # If the option hasn't been set yet
-        if not config.cv.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS.is_set():
-            choice = self.question(title="Electrum-HMS - " + _("Enable update check"),
-                                   msg=_("For security reasons we advise that you always use the latest version of Electrum.") + " " +
-                                       _("Would you like to be notified when there is a newer version of Electrum available?"))
-            config.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS = bool(choice)
 
-        self._update_check_thread = None
-        if config.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS:
-            # The references to both the thread and the window need to be stored somewhere
-            # to prevent GC from getting in our way.
-            def on_version_received(v):
-                if UpdateCheck.is_newer(v):
-                    self.update_check_button.setText(_("Update to Electrum {} is available").format(v))
-                    self.update_check_button.clicked.connect(lambda: self.show_update_check(v))
-                    self.update_check_button.show()
-            self._update_check_thread = UpdateCheckThread()
-            self._update_check_thread.checked.connect(on_version_received)
-            self._update_check_thread.start()
+        config.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS = False
 
     def run_coroutine_dialog(self, coro, text, on_result, on_cancelled):
         """ run coroutine in a waiting dialog, with a Cancel button that cancels the coroutine """
@@ -770,13 +753,13 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
 
         help_menu = menubar.addMenu(_("&Help"))
         help_menu.addAction(_("&About"), self.show_about)
-        help_menu.addAction(_("&Check for updates"), self.show_update_check)
+        #help_menu.addAction(_("&Check for updates"), self.show_update_check)
         help_menu.addAction(_("&Official website"), lambda: webopen("https://hemis.tech"))
         help_menu.addSeparator()
-        help_menu.addAction(_("&Documentation"), lambda: webopen("https://www.hemis.tech/forum/")).setShortcut(QKeySequence.HelpContents)
+        #help_menu.addAction(_("&Documentation"), lambda: webopen("https://www.hemis.tech/forum/")).setShortcut(QKeySequence.HelpContents)
         # if not constants.net.TESTNET:
         #    help_menu.addAction(_("&Bitcoin Paper"), self.show_bitcoin_paper)
-        help_menu.addAction(_("&Report Bug"), self.show_report_bug)
+        #help_menu.addAction(_("&Report Bug"), self.show_report_bug)
         help_menu.addSeparator()
         help_menu.addAction(_("&Donate to server"), self.donate_to_server)
 
@@ -2552,9 +2535,6 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
             self.qr_window.close()
         self.close_wallet()
 
-        if self._update_check_thread:
-            self._update_check_thread.exit()
-            self._update_check_thread.wait()
         if self.tray:
             self.tray = None
         self.gui_object.timer.timeout.disconnect(self.timer_actions)

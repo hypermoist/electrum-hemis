@@ -1148,7 +1148,7 @@ Warning: setting this to too low will result in lots of payment failures."""),
     )
 
     BLOCK_EXPLORER = ConfigVar(
-        'block_explorer', default='explorer.hemis.tech', type_=str,
+        'block_explorer', default='system default', type_=str,
         short_desc=lambda: _('Online Block Explorer'),
         long_desc=lambda: _('Choose which online block explorer to use for functions that open a web browser'),
     )
