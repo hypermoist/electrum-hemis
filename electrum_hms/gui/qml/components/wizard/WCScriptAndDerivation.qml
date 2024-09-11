@@ -73,7 +73,7 @@ WizardComponent {
             else
                 derivationpathtext.text = "m/" + p[scripttype] + "'/"
                 + (Network.isTestNet ? 1 : 0) + "'/0'/"
-                + (scripttype == 'p2wsh' ? 2 : 1) + "'"
+                + (scripttype == 'p2pkh' ? 2 : 1) + "'"
         } else {
             derivationpathtext.text =
                 "m/" + p[scripttypegroup.checkedButton.scripttype] + "'/"
@@ -111,6 +111,7 @@ WizardComponent {
                 property string scripttype: 'p2pkh'
                 text: qsTr('legacy (p2pkh)')
                 visible: !isMultisig
+
             }
             ElRadioButton {
                 Layout.fillWidth: true

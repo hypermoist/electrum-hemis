@@ -273,7 +273,7 @@ class SettingsDialog(QDialog, QtEventListener):
         BLOCK_EX_CUSTOM_ITEM = _("Custom URL")
         if BLOCK_EX_CUSTOM_ITEM in block_explorers:  # malicious translation?
             block_explorers.remove(BLOCK_EX_CUSTOM_ITEM)
-        block_explorers.append(BLOCK_EX_CUSTOM_ITEM)
+        #block_explorers.append(BLOCK_EX_CUSTOM_ITEM)
         block_ex_label = HelpLabel.from_configvar(self.config.cv.BLOCK_EXPLORER)
         block_ex_combo = QComboBox()
         block_ex_custom_e = QLineEdit(str(self.config.BLOCK_EXPLORER_CUSTOM or ''))

@@ -690,9 +690,7 @@ class WCScriptAndDerivation(WalletWizardComponent, Logger):
         if self.wizard_data['wallet_type'] == 'multisig':
             choices = [
                 # TODO: nicer to refactor 'standard' to 'p2sh', but backend wallet still uses 'standard'
-                ('standard', 'legacy multisig (p2sh)', normalize_bip32_derivation("m/45'/0")),
-                ('p2wsh-p2sh', 'p2sh-segwit multisig (p2wsh-p2sh)', purpose48_derivation(0, xtype='p2wsh-p2sh')),
-                ('p2wsh', 'native segwit multisig (p2wsh)', purpose48_derivation(0, xtype='p2wsh')),
+                ('standard', 'legacy multisig (p2sh)', normalize_bip32_derivation("m/44'/0")),
             ]
             if 'multisig_current_cosigner' in self.wizard_data:
                 # get script type of first cosigner
@@ -700,14 +698,12 @@ class WCScriptAndDerivation(WalletWizardComponent, Logger):
                 default_choice = xpub_type(ks.get_master_public_key())
                 hide_choices = True
             else:
-                default_choice = 'p2wsh'
+                default_choice = 'standard'
         else:
-            default_choice = 'p2wpkh'
+            default_choice = 'standard'
             choices = [
                 # TODO: nicer to refactor 'standard' to 'p2pkh', but backend wallet still uses 'standard'
                 ('standard', 'legacy (p2pkh)', bip44_derivation(0, bip43_purpose=44)),
-                ('p2wpkh-p2sh', 'p2sh-segwit (p2wpkh-p2sh)', bip44_derivation(0, bip43_purpose=49)),
-                ('p2wpkh', 'native segwit (p2wpkh)', bip44_derivation(0, bip43_purpose=84)),
             ]
 
         if self.wizard_data['wallet_type'] == 'standard' and not self.wizard_data['keystore_type'] == 'hardware':
