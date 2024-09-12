@@ -25,6 +25,6 @@ Plugin rules:
 
  * We may decide to remove a plugin after it has been merged in
    Electrum-HMS. For this reason, a plugin must be easily removable,
-   without putting at risk the user's hemiss. If we feel that a
+   without putting at risk the user's hemis. If we feel that a
    plugin cannot be removed without threatening users who rely on it,
    we will not merge it.

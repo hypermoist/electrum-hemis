@@ -766,9 +766,9 @@ class DeviceMgr(ThreadJob):
         # or it is not pairable
         raise DeviceUnpairableError(
             _('Electrum-HMS cannot pair with your {}.\n\n'
-              'Before you request hemiss to be sent to addresses in this '
+              'Before you request hemis to be sent to addresses in this '
               'wallet, ensure you can pair with your device, or that you have '
-              'its seed (and passphrase, if any).  Otherwise all hemiss you '
+              'its seed (and passphrase, if any).  Otherwise all hemis you '
               'receive will be unspendable.').format(plugin.device))
 
     def list_pairable_device_infos(

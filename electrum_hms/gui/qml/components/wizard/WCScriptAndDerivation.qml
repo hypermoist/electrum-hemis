@@ -111,6 +111,7 @@ WizardComponent {
                 property string scripttype: 'p2pkh'
                 text: qsTr('legacy (p2pkh)')
                 visible: !isMultisig
+                checked: !isMultisig
 
             }
             ElRadioButton {
@@ -136,7 +137,7 @@ WizardComponent {
                 property string scripttype: 'p2sh'
                 text: qsTr('legacy multisig (p2sh)')
                 visible: isMultisig
-                enabled: !cosigner || wizard_data['script_type'] == 'p2sh'
+                enabled: !cosigner || wizard_data['script_type'] == 'p2sh' : false
                 checked: cosigner ? wizard_data['script_type'] == 'p2sh' : false
             }
             ElRadioButton {
@@ -145,7 +146,7 @@ WizardComponent {
                 property string scripttype: 'p2wsh-p2sh'
                 text: qsTr('p2sh-segwit multisig (p2wsh-p2sh)')
                 visible: false
-                enabled: !cosigner || wizard_data['script_type'] == 'p2wsh-p2sh'
+                enabled: !cosigner || wizard_data['script_type'] == 'p2wsh-p2sh' : false
                 checked: cosigner ? wizard_data['script_type'] == 'p2wsh-p2sh' : false
             }
             ElRadioButton {
@@ -154,8 +155,8 @@ WizardComponent {
                 property string scripttype: 'p2wsh'
                 text: qsTr('native segwit multisig (p2wsh)')
                 visible: false
-                enabled: !cosigner || wizard_data['script_type'] == 'p2wsh'
-                checked: cosigner ? wizard_data['script_type'] == 'p2wsh' : isMultisig
+                enabled: !cosigner || wizard_data['script_type'] == 'p2wsh' false
+                checked: cosigner ? wizard_data['script_type'] == 'p2wsh' : false
             }
 
             InfoTextArea {
