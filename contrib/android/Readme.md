@@ -65,7 +65,7 @@ You probably need to clear the cache: `rm -rf .buildozer/android/platform/build-
 Assuming `adb` is installed:
 ```
 $ adb -d install -r dist/ElectrumHMS-*-arm64-v8a-debug.apk
-$ adb shell monkey -p org.it4f.electrumhms 1
+$ adb shell monkey -p tech.hemis.electrumhms 1
 ```
 
 
@@ -90,7 +90,7 @@ adb logcat | grep python
 ```
 Better `grep` but fragile because of `cut`:
 ```
-adb logcat | grep -F "`adb shell ps | grep org.it4f.Electrumhms | cut -c14-19`"
+adb logcat | grep -F "`adb shell ps | grep tech.hemis.Electrumhms | cut -c14-19`"
 ```
 
 
@@ -135,16 +135,16 @@ of Android does not let you access the internal storage of an app without root.
 To pull a file:
 ```
 $ adb shell
-adb$ run-as org.it4f.electrumhms ls /data/data/org.it4f.electrumhms/files/data
+adb$ run-as tech.hemis.electrumhms ls /data/data/tech.hemis.electrumhms/files/data
 adb$ exit
-$ adb exec-out run-as org.it4f.electrumhms cat /data/data/org.it4f.electrumhms/files/data/wallets/my_wallet > my_wallet
+$ adb exec-out run-as tech.hemis.electrumhms cat /data/data/tech.hemis.electrumhms/files/data/wallets/my_wallet > my_wallet
 ```
 To push a file:
 ```
 $ adb push ~/wspace/tmp/my_wallet /data/local/tmp
 $ adb shell
 adb$ ls -la /data/local/tmp
-adb$ run-as org.it4f.testnet.electrumhms cp /data/local/tmp/my_wallet /data/data/org.it4f.testnet.electrumhms/files/data/testnet/wallets/
+adb$ run-as tech.hemis.testnet.electrumhms cp /data/local/tmp/my_wallet /data/data/tech.hemis.testnet.electrumhms/files/data/testnet/wallets/
 adb$ rm /data/local/tmp/my_wallet
 ```
 

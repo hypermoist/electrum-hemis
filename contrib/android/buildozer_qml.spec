@@ -7,7 +7,7 @@ title = Electrum-HMS
 package.name = ElectrumHMS
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.it4f
+package.domain = tech.hemis
 
 # (str) Source code where the main.py live
 source.dir = .

@@ -3,7 +3,7 @@ include README.md
 include electrum-hms.desktop
 include *.py
 include run_electrum_hms
-include org.it4f.electrum-hms.metainfo.xml
+include tech.hemis.electrum-hms.metainfo.xml
 recursive-include packages *.py
 recursive-include packages cacert.pem
 
