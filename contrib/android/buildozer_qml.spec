@@ -206,7 +206,7 @@ android.whitelist = lib-dynload/_csv.so
 android.allow_backup = False
 
 # (str) The format used to package the app for release mode (aab or apk or aar).
-android.release_artifact = apk
+android.release_artifact = aab
 
 # (str) The format used to package the app for debug mode (apk or aar).
 android.debug_artifact = apk
